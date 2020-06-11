@@ -4,8 +4,8 @@
 #include "map.h"
 
 typedef enum VariableType {
-  STRING,
-  ARRAY
+  VT_STRING,
+  VT_ARRAY
 } VariableType;
 
 typedef struct Variable {
