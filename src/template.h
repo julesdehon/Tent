@@ -30,4 +30,6 @@ typedef map_t(Template*) TemplateMap;
 
 Template* load_template(FILE* file, TemplateType type);
 
+void destroy_template(Template* t);
+
 #endif

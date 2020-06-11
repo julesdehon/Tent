@@ -9,6 +9,12 @@ Template* create_template() {
 	return t;
 }
 
+void destroy_template(Template* t) {
+	free(t->name);
+	free(t->content);
+	free(t);
+}
+
 Template* load_template(FILE* file, TemplateType type) {
 	Template* t = create_template();
 	t->name = file_name_without_extension(file);
@@ -16,3 +22,4 @@ Template* load_template(FILE* file, TemplateType type) {
 	t->content = read_file_into_buffer(file, &t->content_len);
 	return t;
 }
+
