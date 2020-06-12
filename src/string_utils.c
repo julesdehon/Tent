@@ -84,3 +84,10 @@ char* trim_whitespace(char* orig) {
 int str_equal(char* a, char* b) {
 	return strcmp(a, b) == 0;
 }
+
+char* str_append(char* start, char* add) {
+	char* ret = (char*) calloc(strlen(start) + strlen(add) + 1, sizeof(char));
+	strcpy(ret, start);
+	strcpy(ret+strlen(start), add);
+	return ret;
+}

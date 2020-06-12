@@ -7,4 +7,6 @@ char* trim_whitespace(char* orig);
 
 int str_equal(char* a, char* b);
 
+char* str_append(char* start, char* add);
+
 #endif

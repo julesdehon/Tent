@@ -12,3 +12,7 @@ all:
 clean:
 	rm -rf bin
 	cd src; make clean
+
+install: all
+	mv bin/tent /usr/bin/tent
+
