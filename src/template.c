@@ -22,4 +22,3 @@ Template* load_template(FILE* file, TemplateType type) {
 	t->content = read_file_into_buffer(file, &t->content_len);
 	return t;
 }
-

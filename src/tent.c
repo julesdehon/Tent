@@ -4,6 +4,7 @@
 #include "file_utils.h"
 #include "string_utils.h"
 #include "template.h"
+#include "config.h"
 
 int main(int argc, char** argv) {
 	FILE* file = fopen(argv[1], "r");
@@ -22,6 +23,9 @@ int main(int argc, char** argv) {
 	/* printf("%s\n", fn); */
 	/* printf("%s\n", fnne); */
 	/* printf("%s\n", fe); */
+
+	Config* config = load_config();
+	map_deinit(config);
 
 	char* new = str_replace(buf, "Casey", "Jules");
 

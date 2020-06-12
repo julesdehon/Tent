@@ -11,11 +11,13 @@ typedef enum VariableType {
 typedef struct Variable {
   VariableType type;
   union {
-    char* value;
+    char* str;
     char** arr;
-  };
+  } value;
 } Variable;
 
 typedef map_t(Variable*) VariableMap;
+
+VariableType determine_vartype(char* value);
 
 #endif
