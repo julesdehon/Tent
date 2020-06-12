@@ -1,6 +1,6 @@
 CC      = gcc
 CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
-T_OBJS  = tent.o string_utils.o file_utils.o template.o config.o map.o
+T_OBJS  = tent.o string_utils.o file_utils.o template.o map.o variable.o
 
 .SUFFIXES: .c .o
 
@@ -14,9 +14,10 @@ clean:
 	rm -rf ../bin
 
 tent: $(T_OBJS)
+	mkdir -p ../bin
 	$(CC) $(CFLAGS) $(T_OBJS) -o ../bin/tent
 
-tent.o: string_utils.h file_utils.h template.h config.h
+tent.o: string_utils.h file_utils.h template.h
 
 string_utils.o: string_utils.h
 
@@ -24,6 +25,6 @@ file_utils.o: file_utils.h
 
 template.o: template.h file_utils.h map.h
 
-config.o: config.h map.h variable.h file_utils.h
-
 map.o: map.h
+
+variable.o: variable.h string_utils.h
