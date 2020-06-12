@@ -14,6 +14,7 @@ clean:
 	rm -rf ../bin
 
 tent: tent.o string_utils.o file_utils.o
+	mkdir -p ../bin
 	$(CC) $(CFLAGS) tent.o string_utils.o file_utils.o -o ../bin/tent
 
 tent.o: string_utils.h file_utils.h
