@@ -80,3 +80,7 @@ char* trim_whitespace(char* orig) {
 
   return orig;
 }
+
+int str_equal(char* a, char* b) {
+	return strcmp(a, b) == 0;
+}
