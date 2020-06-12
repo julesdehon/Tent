@@ -5,8 +5,8 @@
 #include "convert.h"
 #include "handle_markups.h"
 
-
-void parse_markdown(FILE *input, FILE *output){
+//returns a large string containing all of the HTML
+char* parse_markdown(FILE *input){
 
   long bufflen;
   char* source = read_file_into_buffer(input, &bufflen);
@@ -18,23 +18,29 @@ void parse_markdown(FILE *input, FILE *output){
     Line markup_line;
     int token_count;
     char** tokens = tokenize(line, &line, &token_count);
-    markup_line.markup = determine_markup(tokens[0]); 
-    switch(markup_line.markup){
-      case Header:
-        handle_header(&markup_line, tokens, token_count);
-	break;
-      case Bold:
-        handle_bold(&markup_line, tokens, token_count);
-        break;
-      case Italic:
-        handle_italic(&markup_line, tokens, token_count);
-        break;	
-      case Link:
-      case Paragraph:
-        perror("can't handle this markup yet");
-        exit(EXIT_FAILURE);	
-    }      
+    //for look that will go through every token in the line
+    //will now need to implement a new markup type such that it is just text.
+    for(int i = 0; i < token_count; ++i){
+	markup_line.markup = determine_markup(tokens[i]); 
+	switch(markup_line.markup){
+	  case Header:
+	    handle_header(&markup_line, tokens, token_count);
+	    break;
+	  case Bold:
+	    handle_bold(&markup_line, tokens, token_count);
+	    break;
+	  case Italic:
+	    handle_italic(&markup_line, tokens, token_count);
+	    break;	
+	  case Link:
+	  case Paragraph:
+	    perror("can't handle this markup yet");
+	    exit(EXIT_FAILURE);	
+	}    
+    }
   }
+  char* ret = NULL;
+  return ret;
 }
 
 MarkupType determine_markup(char* currWord){
