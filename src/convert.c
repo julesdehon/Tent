@@ -3,6 +3,7 @@
 #include <string.h>
 #include "file_utils.h"
 #include "convert.h"
+#include "handle_markups.h"
 
 
 void parse_markdown(FILE *input, FILE *output){
@@ -14,9 +15,39 @@ void parse_markdown(FILE *input, FILE *output){
   //go through line by line
   line = strtok_r(source, "\n", &source);
   while(line != NULL){
+    Line markup_line;
     int token_count;
     char** tokens = tokenize(line, &line, &token_count);
-  }    
+    markup_line.markup = determine_markup(tokens[0]); 
+    switch(markup_line.markup){
+      case Header:
+        handle_header(&markup_line, tokens, token_count);
+	break;
+      case Bold:
+        handle_bold(&markup_line, tokens, token_count);
+        break;
+      case Italic:
+        handle_italic(&markup_line, tokens, token_count);
+        break;	
+      case Link:
+      case Paragraph:
+        perror("can't handle this markup yet");
+        exit(EXIT_FAILURE);	
+    }      
+  }
+}
+
+MarkupType determine_markup(char* currWord){
+  if (currWord[0] == '#'){
+    return Header;
+  } else if (currWord[0] == '*'){
+    return Bold;
+  } else if (currWord[0] == '_'){
+    return Italic;
+  } else {
+    perror("haven't managed to program this far yet");
+    exit(EXIT_FAILURE);
+  }
 }
 
 //same tokenize function as the one in assembler
