@@ -27,4 +27,4 @@ template.o: template.h file_utils.h map.h
 
 map.o: map.h
 
-variable.o: variable.h string_utils.h
+variable.o: variable.h string_utils.h file_utils.h map.h
