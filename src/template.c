@@ -1,9 +1,11 @@
 #include "template.h"
 #include "file_utils.h"
-
+#include "map.h"
 #include <string.h>
 #include <stdlib.h>
-
+#include <dirent.h>
+#define PATH_LENGTH 50 //Shouldn't be longer than this
+#define TEMPLATES_PATH "../example/theme/templates"
 Template* create_template() {
   Template* t = (Template*) malloc(sizeof(Template));
   return t;
@@ -111,4 +113,49 @@ void replace_strings(FILE* fp) {
   }
   free(final_text);
   return;  
-}	
+}
+TemplateType get_type(char* name) {//We will add them later
+  if(!(strcmp(name,"pages"))) {
+    return TT_PAGE;  
+  }	     
+  if(!(strcmp(name,"snippets"))) { //Can't use a switch for this
+    return TT_SNIPPET;  
+  }
+  return TT_SNIPPET;  
+} 
+TemplateMap populate() {
+  TemplateMap map;
+  map_init(&map); 
+  DIR *dir,*subdir;
+  struct dirent *ent,*sub_ent;
+  char path_name[PATH_LENGTH];
+  FILE* fp;
+  strcpy(path_name,TEMPLATES_PATH);
+  strcat(path_name,"/");
+  if(!(dir = opendir(TEMPLATES_PATH))) {
+    perror("Could not open directory!");
+    exit(EXIT_FAILURE);  
+  }
+  while ((ent = readdir(dir)) != NULL) {
+    strcat(path_name,ent->d_name);
+    if(!(subdir = opendir(path_name))) {
+      perror("Could not open directory!");
+      exit(EXIT_FAILURE);  
+    }
+    while ((sub_ent = readdir(subdir)) != NULL) {
+      strcat(path_name,sub_ent->d_name);
+      if((fp = fopen(path_name,"r")) == NULL) {
+	perror("Could not open directory!");
+	exit(EXIT_FAILURE);  
+      }
+      Template* template = load_template(fp,get_type(ent->d_name));
+      map_set(&map,file_name_without_extension(fp),template);
+      strcpy(path_name + strlen(path_name) - strlen(sub_ent->d_name), path_name + strlen(path_name));
+    }
+    closedir(subdir); 
+    strcpy(path_name + strlen(path_name) - strlen(ent->d_name), path_name + strlen(path_name));
+      
+  }
+  closedir(dir);
+  return map;
+}  
