@@ -7,6 +7,7 @@
 #include <dirent.h>
 
 #include "string_utils.h"
+#include "file_utils.h"
 
 #define HELP_MESSAGE "USAGE: tent <command> [options]\n\n"		\
   "Commands:\n"								\
@@ -24,7 +25,7 @@
 #define FIL_CONFIG "/config.tent"
 
 // UNFINISHED!
-void build_site_aux(const char *name)
+void build_site_aux(const char *name/* , VariableMap *config_map */)
 {
   DIR *dir;
   struct dirent *entry;
@@ -50,9 +51,29 @@ void build_site_aux(const char *name)
       }
       if (str_equal(file_extension(f), "md")) {
 	printf("Parsing markdown file: %s\n", file_name(f));
-	
-	// char *content = parse_markdown
+	//VariableMap *meta_map;
+	//char *content = parse_markdown(f, meta_map);
+	char html_file_path[1024];
+	snprintf(html_file_path, sizeof(html_file_name), "public/%s/%s.html", str_replace(name, "content", ""), file_name_without_extension(f));
+	FILE *out = fopen(html_file_name, "w");
+	if (!out) {
+	  perror("tent.c - error creating output file for a markdown conversion");
+	  exit(EXIT_FAILURE);
+	}
+	//fill_template(content, config_map, meta_map, out);
+	fclose(out);
+      } else {
+	char output_file_path[1024];
+	snprintf(output_file_path, sizeof(output_file_path), "public/%s/%s", str_replace(name, "content", ""), file_name(f));
+	FILE *out = fopen(output_file_path, "w");
+	if (!out) {
+	  perror("tent.c - error creating file for copying to public directory");
+	  exit(EXIT_FAILURE);
+	}
+	//copy_file(f, out); // <-- this should be a new file util to implement
+	fclose(out);
       }
+      fclose(f);
     }
   }
   closedir(dir);
@@ -64,7 +85,8 @@ void print_help() {
 
 //UNFINISHED!!
 void build_site() {
-  build_site_aux(".");
+  //VariableMap *config_map = load_config("config.tent");
+  build_site_aux("content/"/* , config_map */);
 }
 
 void write_default_config(FILE* cf, char* site_name) {
