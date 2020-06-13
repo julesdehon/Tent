@@ -24,7 +24,11 @@
 #define DIR_THEME "/theme"
 #define FIL_CONFIG "/config.tent"
 
-// UNFINISHED!
+// FOR NOW IS ABLE TO RECREATE THE DIRECTORY STRUCTURE
+// OF CONTENT/ IN PUBLIC/CONTENT/ NOTE THIS IS WRONG
+// IT SHOULD RECREATE IT IN JUST PUBLIC/
+// FOR NOW IT ALSO REPLACES ALL .md FILES WITH
+// .html FILES
 void build_site_aux(const char *name/* , VariableMap *config_map */)
 {
   DIR *dir;
@@ -35,13 +39,15 @@ void build_site_aux(const char *name/* , VariableMap *config_map */)
 
   while ((entry = readdir(dir)) != NULL) {
     if (entry->d_type == DT_DIR) {
-      char path[1024];
+      char next_directory_path[1024];
+      char public_directory_path[1024];
       if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 	continue;
-      snprintf(path, sizeof(path), "%s/%s", name, entry->d_name);
-      build_site_aux(path);
+      snprintf(next_directory_path, sizeof(next_directory_path), "%s/%s", name, entry->d_name);
+      snprintf(public_directory_path, sizeof(public_directory_path), "public/%s/%s", name, entry->d_name);
+      mkdir(public_directory_path, DIR_PERMS);
+      build_site_aux(next_directory_path);
     } else {
-      printf("Found file: %s\n", entry->d_name);
       char path_to_file[1024];
       snprintf(path_to_file, sizeof(path_to_file), "%s/%s", name, entry->d_name);
       FILE *f = fopen(path_to_file, "r");
@@ -54,8 +60,8 @@ void build_site_aux(const char *name/* , VariableMap *config_map */)
 	//VariableMap *meta_map;
 	//char *content = parse_markdown(f, meta_map);
 	char html_file_path[1024];
-	snprintf(html_file_path, sizeof(html_file_name), "public/%s/%s.html", str_replace(name, "content", ""), file_name_without_extension(f));
-	FILE *out = fopen(html_file_name, "w");
+	snprintf(html_file_path, sizeof(html_file_path), "public/%s/%s.html", name, file_name_without_extension(f));
+	FILE *out = fopen(html_file_path, "w");
 	if (!out) {
 	  perror("tent.c - error creating output file for a markdown conversion");
 	  exit(EXIT_FAILURE);
@@ -64,7 +70,8 @@ void build_site_aux(const char *name/* , VariableMap *config_map */)
 	fclose(out);
       } else {
 	char output_file_path[1024];
-	snprintf(output_file_path, sizeof(output_file_path), "public/%s/%s", str_replace(name, "content", ""), file_name(f));
+	snprintf(output_file_path, sizeof(output_file_path), "public/%s/%s", name, file_name(f));
+	printf("%s\n", output_file_path);
 	FILE *out = fopen(output_file_path, "w");
 	if (!out) {
 	  perror("tent.c - error creating file for copying to public directory");
@@ -86,7 +93,9 @@ void print_help() {
 //UNFINISHED!!
 void build_site() {
   //VariableMap *config_map = load_config("config.tent");
-  build_site_aux("content/"/* , config_map */);
+  mkdir("public", DIR_PERMS);
+  mkdir("public/content", DIR_PERMS);
+  build_site_aux("content"/* , config_map */);
 }
 
 void write_default_config(FILE* cf, char* site_name) {
