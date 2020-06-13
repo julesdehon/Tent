@@ -10,17 +10,17 @@ Template* create_template() {
 }
 
 void destroy_template(Template* t) {
-	free(t->name);
-	free(t->content);
-	free(t);
+  free(t->name);
+  free(t->content);
+  free(t);
 }
 
 Template* load_template(FILE* file, TemplateType type) {
-	Template* t = create_template();
-	t->name = file_name_without_extension(file);
-	t->type = type;
-	t->content = read_file_into_buffer(file, &t->content_len);
-	return t;
+  Template* t = create_template();
+  t->name = file_name_without_extension(file);
+  t->type = type;
+  t->content = read_file_into_buffer(file, &t->content_len);
+  return t;
 }
 
 void replace_strings(FILE* fp) {
@@ -38,21 +38,21 @@ void replace_strings(FILE* fp) {
       c = fgetc(fp);
       i++;
       if(c == '{') {
-				if(i >= file_length) {
-					final_text[length++] = c;
-					break;
-				}	      
-				d = fgetc(fp);
-				i++;
-				if(d == '{') {
-					break;    
-				} else {
-					final_text[length++] = c;
-					final_text[length++] = d;
-				}	
-			} else {
-				final_text[length++] = c;
-			}      
+        if(i >= file_length) {
+          final_text[length++] = c;
+          break;
+        }	      
+        d = fgetc(fp);
+        i++;
+        if(d == '{') {
+          break;  
+        } else {
+          final_text[length++] = c;
+          final_text[length++] = d;
+        }
+      } else {
+        final_text[length++] = c;
+      }      
     }
     matching_brackets = 0;
     length_replace = 0;
@@ -61,19 +61,19 @@ void replace_strings(FILE* fp) {
       c = fgetc(fp);
       i++;
       if(c == '}') {
-				if(i >= file_length) {
-					replaced[length_replace++] = c; // we store the string inside the brackets in replaced
-					break;
-				}	      
+        if(i >= file_length) {
+          replaced[length_replace++] = c; // we store the string inside the brackets in replaced
+          break;
+        }	      
         d = fgetc(fp);
-				i++;
-				if(d == '}') {
-					matching_brackets = 1;
-					break;    
-				} else {
-					replaced[length_replace++] = c;
-					replaced[length_replace++] = d;
-				}	
+        i++;
+        if(d == '}') {
+          matching_brackets = 1;
+          break;
+        } else {
+          replaced[length_replace++] = c;
+          replaced[length_replace++] = d;
+        }	
       } else {
 				replaced[length_replace++] = c;
       }      
@@ -84,21 +84,20 @@ void replace_strings(FILE* fp) {
       with = "aaaaa";
 
       for(int j = 0;j < 5/*length_replace*/;j++) {
-				final_text[length++] = with[j];    
+        final_text[length++] = with[j];    
       }
       //free(with);    
     } else { // otherwise we just write the text that was there before
-			final_text[length++] = '{';
-			final_text[length++] = '{';
-			for(int j = 0;j < length_replace;j++) {
-				final_text[length++] = replaced[j];    
-			}
-        
+      final_text[length++] = '{';
+      final_text[length++] = '{';
+      for(int j = 0;j < length_replace;j++) {
+        final_text[length++] = replaced[j];
+      }
     }
     free(replaced);  
   }
-
-	char* fpath = file_path(fp);
+    
+  char* fpath = file_path(fp);
   fclose(fp);
   if((fp = fopen(fpath, "w+")) == NULL) {
     perror("Couldn't print to file!");
