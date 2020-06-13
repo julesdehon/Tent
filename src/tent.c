@@ -11,34 +11,12 @@ int main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-	long buflen;
-	char* buf = read_file_into_buffer(file, &buflen);
+	/* long buflen; */
+	/* char* buf = read_file_into_buffer(file, &buflen); */
 
-	/* char* fp = file_path(file); */
-	/* char* fn = file_name(file); */
-	/* char* fnne = file_name_without_extension(file); */
-	/* char* fe = file_extension(file); */
-	/* printf("%s\n", fp); */
-	/* printf("%s\n", fn); */
-	/* printf("%s\n", fnne); */
-	/* printf("%s\n", fe); */
+	replace_strings(file);
 
-
-	char* new = str_replace(buf, "Casey", "Jules");
-
-	printf("%s\n", new);
-
-	FILE* out = fopen(argv[2], "w");
-	if (!out) {
-		return EXIT_FAILURE;
-	}
-
-	fputs(new, out);
-
-	free(buf);
-	free(new);
 	fclose(file);
-	fclose(out);
 
 	return 0;
 }

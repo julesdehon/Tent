@@ -32,4 +32,6 @@ Template* load_template(FILE* file, TemplateType type);
 
 void destroy_template(Template* t);
 
+void replace_strings(FILE* fp);
+
 #endif
