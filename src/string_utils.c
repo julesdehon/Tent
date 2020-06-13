@@ -2,6 +2,8 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <stdio.h>
 
 // Adapted from:
 // https://stackoverflow.com/questions/779875/what-is-the-function-to-replace-string-in-c
@@ -54,4 +56,31 @@ char* str_replace(char* orig, char* rep, char* with) {
 	}
 	strcpy(tmp, orig);
 	return result;
+}
+
+// Returns a pointer to the substring where that starts after the leading
+// whitespace and terminates before the trailing whitespace.
+// Keep track of the original char* if you need to free it as you can't
+// use the return value to free the string
+char* trim_whitespace(char* orig) {
+  char *end;
+
+  // Trim leading space
+  while(isspace((unsigned char)*orig)) orig++;
+
+  if(*orig == 0)  // All spaces?
+    return orig;
+
+  // Trim trailing space
+  end = orig + strlen(orig) - 1;
+  while(end > orig && isspace((unsigned char)*end)) end--;
+
+  // Write new null terminator character
+  end[1] = '\0';
+
+  return orig;
+}
+
+int str_equal(char* a, char* b) {
+	return strcmp(a, b) == 0;
 }
