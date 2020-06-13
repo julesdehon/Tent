@@ -11,12 +11,12 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-	/* long buflen; */
-	/* char* buf = read_file_into_buffer(file, &buflen); */
+  /* long buflen; */
+  /* char* buf = read_file_into_buffer(file, &buflen); */
 
   replace_strings(file);
 
   fclose(file);
 
-	return 0;
+  return 0;
 }

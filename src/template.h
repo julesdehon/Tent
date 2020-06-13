@@ -23,7 +23,7 @@ typedef struct Template {
   char* name;
   TemplateType type;
   char* content;
-	long content_len;
+  long content_len;
 } Template;
 
 typedef map_t(Template*) TemplateMap; 

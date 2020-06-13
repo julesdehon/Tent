@@ -75,7 +75,7 @@ void replace_strings(FILE* fp) {
           replaced[length_replace++] = d;
         }	
       } else {
-				replaced[length_replace++] = c;
+        replaced[length_replace++] = c;
       }      
     }
     if(matching_brackets) {//if we encountered the closing brackets we replace the string inside with ..
