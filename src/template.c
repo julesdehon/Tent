@@ -87,7 +87,7 @@ void replace_strings(FILE* fp) {
       //with = replace_with(replaced);
       with = "aaa\nbbb";
 
-      for(int j = 0;j < 11/*length_replace*/;j++) {
+      for(int j = 0;j < 7/*length_replace*/;j++) {
         final_text[length++] = with[j];    
       }
       //free(with);    
