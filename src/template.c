@@ -5,8 +5,8 @@
 #include <stdlib.h>
 
 Template* create_template() {
-	Template* t = (Template*) malloc(sizeof(Template));
-	return t;
+  Template* t = (Template*) malloc(sizeof(Template));
+  return t;
 }
 
 void destroy_template(Template* t) {
