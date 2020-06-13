@@ -19,5 +19,8 @@ typedef struct Variable {
 typedef map_t(Variable*) VariableMap;
 
 VariableType determine_vartype(char* value);
+void free_variable_map(VariableMap *var_map);
+VariableMap *load_variable_map(char *key_val_pairs);
+VariableMap *load_config(char *file_path);
 
 #endif
