@@ -32,8 +32,9 @@ void replace_strings(FILE* fp) {
   //fread(final_text,file_length,1,fp);
   char* with,c,d;
   int length = 0,length_replace = 0;
-  int matching_brackets = 0;
-  for(int i = 0;i < file_length;) { //iterating through every character in the file
+  int closing_brackets = 0, opening_brackets = 0;
+  for(int i = 0;i < file_length;) {
+    opening_brackets = 0;	  //iterating through every character in the file
     while(i < file_length) { //we read from the file  and update our final_text until we have 2 consecutive {{ or until the file ends
       c = fgetc(fp);
       i++;
@@ -45,6 +46,7 @@ void replace_strings(FILE* fp) {
         d = fgetc(fp);
         i++;
         if(d == '{') {
+	  opening_brackets = 1;	
           break;  
         } else {
           final_text[length++] = c;
@@ -54,7 +56,7 @@ void replace_strings(FILE* fp) {
         final_text[length++] = c;
       }      
     }
-    matching_brackets = 0;
+    closing_brackets = 0;
     length_replace = 0;
     replaced = malloc(file_length + 1);
     while(i < file_length) { // we read until we hit the closing brackets or the file ends 
@@ -68,7 +70,7 @@ void replace_strings(FILE* fp) {
         d = fgetc(fp);
         i++;
         if(d == '}') {
-          matching_brackets = 1;
+          closing_brackets = 1;
           break;
         } else {
           replaced[length_replace++] = c;
@@ -78,16 +80,16 @@ void replace_strings(FILE* fp) {
         replaced[length_replace++] = c;
       }      
     }
-    if(matching_brackets) {//if we encountered the closing brackets we replace the string inside with ..
+    if(opening_brackets && closing_brackets) {//if we encountered the closing brackets we replace the string inside with ..
       with = malloc(length_replace+1);
       //with = replace_with(replaced);
-      with = "aaaaa";
+      with = "aaa\nbbb";
 
-      for(int j = 0;j < 5/*length_replace*/;j++) {
+      for(int j = 0;j < 11/*length_replace*/;j++) {
         final_text[length++] = with[j];    
       }
       //free(with);    
-    } else { // otherwise we just write the text that was there before
+    } else if(opening_brackets && !closing_brackets) { // otherwise we just write the text that was there before
       final_text[length++] = '{';
       final_text[length++] = '{';
       for(int j = 0;j < length_replace;j++) {
