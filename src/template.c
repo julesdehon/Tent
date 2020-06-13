@@ -6,6 +6,7 @@
 #include <dirent.h>
 #define PATH_LENGTH 50 //Shouldn't be longer than this
 #define TEMPLATES_PATH "../example/theme/templates"
+
 Template* create_template() {
   Template* t = (Template*) malloc(sizeof(Template));
   return t;
@@ -114,15 +115,17 @@ void replace_strings(FILE* fp) {
   free(final_text);
   return;  
 }
+
 TemplateType get_type(char* name) {//We will add them later
-  if(!(strcmp(name,"pages"))) {
+  if(str_equal(name,"pages")) {
     return TT_PAGE;  
   }	     
-  if(!(strcmp(name,"snippets"))) { //Can't use a switch for this
+  if(str_equal(name,"snippets")) { //Can't use a switch for this
     return TT_SNIPPET;  
   }
   return TT_SNIPPET;  
-} 
+}
+
 TemplateMap populate() {
   TemplateMap map;
   map_init(&map); 
@@ -151,6 +154,7 @@ TemplateMap populate() {
       Template* template = load_template(fp,get_type(ent->d_name));
       map_set(&map,file_name_without_extension(fp),template);
       strcpy(path_name + strlen(path_name) - strlen(sub_ent->d_name), path_name + strlen(path_name));
+      fclose(fp);
     }
     closedir(subdir); 
     strcpy(path_name + strlen(path_name) - strlen(ent->d_name), path_name + strlen(path_name));
