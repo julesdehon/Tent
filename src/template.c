@@ -10,6 +10,9 @@
 
 #define PATH_LENGTH 128 //Shouldn't be longer than this
 #define TEMPLATES_PATH "/theme/templates"
+#define TEMPLATE_STR "template"
+#define INSERT_OPEN "{{"
+#define INSERT_CLOSE "}}"
 
 Template* create_template() {
   Template* t = (Template*) malloc(sizeof(Template));
@@ -22,6 +25,41 @@ void destroy_template(Template* t) {
   free(t);
 }
 
+char* replace_inserts(char* template, char* content, VariableMap* config,
+    VariableMap* variables, TemplateMap* templates) {
+
+  // 1. Find {{
+  // 2. Find }}
+  // 3. Pass trimmed string inside to get_insert
+  // 4. Use str_replace to replace {{ text }} with replaced string
+
+  char* final_text = calloc(strlen(template) + 1, sizeof(char));
+  strcpy(final_text, template);
+
+  char* c_start;
+  char* c_end;  
+  int pos_start = 0;
+  int pos_end = 0;
+
+  while((c_start = strstr(final_text+pos_start, INSERT_OPEN))) {
+    pos_start = c_start - final_text;
+    if ((c_end = strstr(final_text+pos_start, INSERT_CLOSE))) {
+      pos_end = c_end - final_text + strlen(INSERT_CLOSE); 
+      char* cpy = calloc(pos_end - pos_start + 1, sizeof(char));
+      strncpy(cpy, c_start, pos_end - pos_start);
+      cpy[pos_end - pos_start] = '\0';
+      char* replacement = "something temp \n\n Yeah yeah"; // get_insert()
+      char* new_text = str_replace(final_text, cpy, replacement);
+      free(final_text);
+      final_text = new_text;
+      free(cpy);
+      /* free(replacement); */
+    }
+  }
+
+  return final_text;
+}
+
 Template* load_template(FILE* file, TemplateType type) {
   Template* t = create_template();
   t->name = file_name_without_extension(file);
@@ -30,94 +68,19 @@ Template* load_template(FILE* file, TemplateType type) {
   return t;
 }
 
-void replace_strings(FILE* fp) {
-  fseek(fp, 0, SEEK_END);
-  long long file_length = ftell(fp);
-  fseek(fp,0,SEEK_SET);
-  char* final_text = malloc(file_length + 1);
-  char* replaced;
-  //fread(final_text,file_length,1,fp);
-  char* with,c,d;
-  int length = 0,length_replace = 0;
-  int closing_brackets = 0, opening_brackets = 0;
-  for(int i = 0;i < file_length;) {
-    opening_brackets = 0;	  //iterating through every character in the file
-    while(i < file_length) { //we read from the file  and update our final_text until we have 2 consecutive {{ or until the file ends
-      c = fgetc(fp);
-      i++;
-      if(c == '{') {
-        if(i >= file_length) {
-          final_text[length++] = c;
-          break;
-        }	      
-        d = fgetc(fp);
-        i++;
-        if(d == '{') {
-	  opening_brackets = 1;	
-          break;  
-        } else {
-          final_text[length++] = c;
-          final_text[length++] = d;
-        }
-      } else {
-        final_text[length++] = c;
-      }      
-    }
-    closing_brackets = 0;
-    length_replace = 0;
-    replaced = malloc(file_length + 1);
-    while(i < file_length) { // we read until we hit the closing brackets or the file ends 
-      c = fgetc(fp);
-      i++;
-      if(c == '}') {
-        if(i >= file_length) {
-          replaced[length_replace++] = c; // we store the string inside the brackets in replaced
-          break;
-        }	      
-        d = fgetc(fp);
-        i++;
-        if(d == '}') {
-          closing_brackets = 1;
-          break;
-        } else {
-          replaced[length_replace++] = c;
-          replaced[length_replace++] = d;
-        }	
-      } else {
-        replaced[length_replace++] = c;
-      }      
-    }
-    if(opening_brackets && closing_brackets) {//if we encountered the closing brackets we replace the string inside with ..
-      with = malloc(length_replace+1);
-      //with = replace_with(replaced);
-      with = "aaa\nbbb";
-
-      for(int j = 0;j < 7/*length_replace*/;j++) {
-        final_text[length++] = with[j];    
-      }
-      //free(with);    
-    } else if(opening_brackets && !closing_brackets) { // otherwise we just write the text that was there before
-      final_text[length++] = '{';
-      final_text[length++] = '{';
-      for(int j = 0;j < length_replace;j++) {
-        final_text[length++] = replaced[j];
-      }
-    }
-    free(replaced);  
+void fill_template(char* content, VariableMap* config, VariableMap* variables,
+    TemplateMap* templates, FILE* out) {
+  Variable* tmp_var = (*map_get(variables, TEMPLATE_STR));
+  // For now we only supprt VT_STRING
+  Template* template = (*map_get(templates, tmp_var->value.str));
+  if (template == NULL) {
+    printf("There does not exist a template with name %s\n", 
+        tmp_var->value.str);
+    return;
   }
-    
-  char* fpath = file_path(fp);
-  fclose(fp);
-  if((fp = fopen(fpath, "w+")) == NULL) {
-    perror("Couldn't print to file!");
-    exit(EXIT_FAILURE); 
-  }
-  if(fputs(final_text, fp) <= 0) {
-    perror("Couldn't print to file!");
-    exit(EXIT_FAILURE); 
-  }
-  free(final_text);
-  return;  
+  char* complete = replace_inserts(template->content, content, config,
+      variables, templates);
+  fputs(complete, out);
 }
 
 TemplateType get_type(char* name) {//We will add them later
