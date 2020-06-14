@@ -13,18 +13,12 @@ int main(int argc, char** argv) {
   /*   return EXIT_FAILURE; */
   /* } */
 
-  const char* key;
   TemplateMap* tm = load_template_map();
-  map_iter_t iter = map_iter(config_map);
-  while ((key = map_next(tm, &iter))) {
-    printf("%s -> %s\n", key, (*map_get(tm, key))->content);
-  }
+  Template* home = (*map_get(tm, "home"));
+  printf("%s", replace_inserts2(home->content, NULL, NULL, NULL, NULL));
   map_deinit(tm);
 
   free(tm);
-
-
-  /* fclose(file); */
 
   return 0;
 }

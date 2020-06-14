@@ -2,6 +2,7 @@
 #define TEMPLATE_H
 
 #include "map.h"
+#include "variable.h"
 
 #include <stdio.h>
 
@@ -32,8 +33,12 @@ Template* load_template(FILE* file, TemplateType type);
 
 void destroy_template(Template* t);
 
-void replace_strings(FILE* fp);
+void fill_template(char* content, VariableMap* config, VariableMap* variables,
+    TemplateMap* templates, FILE* out);
 
 TemplateMap* load_template_map();
+
+char* replace_inserts(char* template, char* content, VariableMap* config,
+    VariableMap* variables, TemplateMap* templates);
 
 #endif
