@@ -34,4 +34,6 @@ void destroy_template(Template* t);
 
 void replace_strings(FILE* fp);
 
+TemplateMap* load_template_map();
+
 #endif

@@ -12,3 +12,6 @@ all:
 clean:
 	rm -rf bin
 	cd src; make clean
+
+install: all
+	cp bin/tent /usr/local/bin/tent
