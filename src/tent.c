@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
   TemplateMap* tm = load_template_map();
   Template* home = (*map_get(tm, "home"));
-  printf("%s", replace_inserts2(home->content, NULL, NULL, NULL, NULL));
+  printf("%s", replace_inserts(home->content, NULL, NULL, NULL, NULL));
   map_deinit(tm);
 
   free(tm);

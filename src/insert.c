@@ -25,7 +25,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
   }
   Variable* variable;
   if(str_equal("config",insert_type)) {
-    variable = map_get(config,insert_name);
+    variable = (*map_get(config,insert_name));
     if(variable->type == VT_ARRAY) {
       perror("Not implemented yet!");
       exit(EXIT_FAILURE);
@@ -34,7 +34,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
   }
 
   if(str_equal("variable",insert_type)) {
-    variable = map_get(variables,insert_name);
+    variable = (*map_get(variables,insert_name));
     if(variable->type == VT_ARRAY) {
       perror("Not implemented yet!");
       exit(EXIT_FAILURE);
@@ -42,22 +42,17 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     return variable->value.str; 
   }
 
-  Template* template = map_get(templates,insert_name);
-
+  Template* template = (*map_get(templates,insert_name));
   if(str_equal("template",insert_type)) {
-
     if(template->type == TT_PAGE) {
       return template->content;
     }  
-
   }
 
   if(str_equal("snippet",insert_type)) {
     if(template->type == TT_SNIPPET) {
       return template->content;
     }  
-    
-
   }  
   return  "111";
 }	

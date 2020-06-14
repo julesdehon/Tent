@@ -1,6 +1,6 @@
 CC      = gcc
 CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic
-T_OBJS  = tent.o string_utils.o file_utils.o template.o map.o variable.o
+T_OBJS  = tent.o string_utils.o file_utils.o template.o map.o variable.o insert.o
 
 .SUFFIXES: .c .o
 
@@ -28,3 +28,5 @@ template.o: template.h file_utils.h map.h
 map.o: map.h
 
 variable.o: variable.h string_utils.h file_utils.h map.h
+
+insert.o: insert.h string_utils.h map.h variable.h template.h 
