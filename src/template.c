@@ -1,3 +1,24 @@
 #include "template.h"
+#include "file_utils.h"
 
 #include <string.h>
+#include <stdlib.h>
+
+Template* create_template() {
+	Template* t = (Template*) malloc(sizeof(Template));
+	return t;
+}
+
+void destroy_template(Template* t) {
+	free(t->name);
+	free(t->content);
+	free(t);
+}
+
+Template* load_template(FILE* file, TemplateType type) {
+	Template* t = create_template();
+	t->name = file_name_without_extension(file);
+	t->type = type;
+	t->content = read_file_into_buffer(file, &t->content_len);
+	return t;
+}
