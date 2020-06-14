@@ -30,7 +30,7 @@ void build_site_aux(const char *content_path, const char *public_path/* , Variab
   struct dirent *entry;
 
   if (!(dir = opendir(content_path))) {
-    printf("Could not open directory, %s - make sure there is a content/ folder in your current directory.", content_path);
+    printf("Could not open directory '%s' - make sure there is a content/ folder in your current directory.\n", content_path);
     return;
   }
 
@@ -88,9 +88,9 @@ void print_help() {
 void build_site() {
   //VariableMap *config_map = load_config("config.tent");
   DIR *dir;
-  if (dir = opendir("public")) {
+  if ((dir = opendir("public"))) {
     closedir(dir);
-    printf("Please delete the public folder before building.");
+    printf("Please delete the public folder before building.\n");
     return;
   }
   mkdir("public", DIR_PERMS);
