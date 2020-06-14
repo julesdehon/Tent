@@ -24,44 +24,40 @@
 #define DIR_THEME "/theme"
 #define FIL_CONFIG "/config.tent"
 
-// FOR NOW IS ABLE TO RECREATE THE DIRECTORY STRUCTURE
-// OF CONTENT/ IN PUBLIC/CONTENT/ NOTE THIS IS WRONG
-// IT SHOULD RECREATE IT IN JUST PUBLIC/
-// FOR NOW IT ALSO REPLACES ALL .md FILES WITH
-// .html FILES
-void build_site_aux(const char *name/* , VariableMap *config_map */)
+void build_site_aux(const char *content_path, const char *public_path/* , VariableMap *config_map */)
 {
   DIR *dir;
   struct dirent *entry;
 
-  if (!(dir = opendir(name)))
+  if (!(dir = opendir(content_path))) {
+    printf("Could not open directory, %s - make sure there is a content/ folder in your current directory.", content_path);
     return;
+  }
 
   while ((entry = readdir(dir)) != NULL) {
     if (entry->d_type == DT_DIR) {
-      char next_directory_path[1024];
+      char content_directory_path[1024];
       char public_directory_path[1024];
       if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 	continue;
-      snprintf(next_directory_path, sizeof(next_directory_path), "%s/%s", name, entry->d_name);
-      snprintf(public_directory_path, sizeof(public_directory_path), "public/%s/%s", name, entry->d_name);
+      snprintf(content_directory_path, sizeof(content_directory_path), "%s/%s", content_path, entry->d_name);
+      snprintf(public_directory_path, sizeof(public_directory_path), "%s/%s", public_path, entry->d_name);
       mkdir(public_directory_path, DIR_PERMS);
-      build_site_aux(next_directory_path);
+      build_site_aux(content_directory_path, public_directory_path/*, VariableMap *config_map */);
     } else {
-      char path_to_file[1024];
-      snprintf(path_to_file, sizeof(path_to_file), "%s/%s", name, entry->d_name);
-      FILE *f = fopen(path_to_file, "r");
+      char path_to_content_file[1024];
+      snprintf(path_to_content_file, sizeof(path_to_content_file), "%s/%s", content_path, entry->d_name);
+      FILE *f = fopen(path_to_content_file, "r");
       if (!f) {
 	perror("tent.c - error reading files in content directory");
 	exit(EXIT_FAILURE);
       }
       if (str_equal(file_extension(f), "md")) {
-	printf("Parsing markdown file: %s\n", file_name(f));
 	//VariableMap *meta_map;
 	//char *content = parse_markdown(f, meta_map);
-	char html_file_path[1024];
-	snprintf(html_file_path, sizeof(html_file_path), "public/%s/%s.html", name, file_name_without_extension(f));
-	FILE *out = fopen(html_file_path, "w");
+	char path_to_html_file[1024];
+	snprintf(path_to_html_file, sizeof(path_to_html_file), "%s/%s.html", public_path, file_name_without_extension(f));
+	FILE *out = fopen(path_to_html_file, "w");
 	if (!out) {
 	  perror("tent.c - error creating output file for a markdown conversion");
 	  exit(EXIT_FAILURE);
@@ -69,10 +65,9 @@ void build_site_aux(const char *name/* , VariableMap *config_map */)
 	//fill_template(content, config_map, meta_map, out);
 	fclose(out);
       } else {
-	char output_file_path[1024];
-	snprintf(output_file_path, sizeof(output_file_path), "public/%s/%s", name, file_name(f));
-	printf("%s\n", output_file_path);
-	FILE *out = fopen(output_file_path, "w");
+	char path_to_public_file[1024];
+	snprintf(path_to_public_file, sizeof(path_to_public_file), "%s/%s", public_path, file_name(f));
+	FILE *out = fopen(path_to_public_file, "w");
 	if (!out) {
 	  perror("tent.c - error creating file for copying to public directory");
 	  exit(EXIT_FAILURE);
@@ -90,12 +85,16 @@ void print_help() {
   printf("\n%s\n", HELP_MESSAGE);
 }
 
-//UNFINISHED!!
 void build_site() {
   //VariableMap *config_map = load_config("config.tent");
+  DIR *dir;
+  if (dir = opendir("public")) {
+    closedir(dir);
+    printf("Please delete the public folder before building.");
+    return;
+  }
   mkdir("public", DIR_PERMS);
-  mkdir("public/content", DIR_PERMS);
-  build_site_aux("content"/* , config_map */);
+  build_site_aux("content", "public"/* , config_map */);
 }
 
 void write_default_config(FILE* cf, char* site_name) {

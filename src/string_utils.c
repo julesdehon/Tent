@@ -67,7 +67,6 @@ char* trim_whitespace(char* orig) {
 
   // Trim leading space
   while(isspace((unsigned char)*orig)) orig++;
-
   if(*orig == 0)  // All spaces?
     return orig;
 
