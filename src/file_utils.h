@@ -13,4 +13,5 @@ char* file_name(FILE* file);
 
 char* file_name_without_extension(FILE* file);
 
+void copy_file(FILE *from, FILE *to);
 #endif

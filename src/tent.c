@@ -8,6 +8,9 @@
 
 #include "string_utils.h"
 #include "file_utils.h"
+#include "variable.h"
+#include "cmark_parser.h"
+#include "template.h"
 
 #define HELP_MESSAGE "USAGE: tent <command> [options]\n\n"		\
   "Commands:\n"								\
@@ -24,7 +27,7 @@
 #define DIR_THEME "/theme"
 #define FIL_CONFIG "/config.tent"
 
-void build_site_aux(const char *content_path, const char *public_path/* , VariableMap *config_map */)
+void build_site_aux(const char *content_path, const char *public_path, VariableMap *config_map, TemplateMap *template_map)
 {
   DIR *dir;
   struct dirent *entry;
@@ -43,7 +46,7 @@ void build_site_aux(const char *content_path, const char *public_path/* , Variab
       snprintf(content_directory_path, sizeof(content_directory_path), "%s/%s", content_path, entry->d_name);
       snprintf(public_directory_path, sizeof(public_directory_path), "%s/%s", public_path, entry->d_name);
       mkdir(public_directory_path, DIR_PERMS);
-      build_site_aux(content_directory_path, public_directory_path/*, VariableMap *config_map */);
+      build_site_aux(content_directory_path, public_directory_path, config_map, template_map);
     } else {
       char path_to_content_file[1024];
       snprintf(path_to_content_file, sizeof(path_to_content_file), "%s/%s", content_path, entry->d_name);
@@ -53,8 +56,8 @@ void build_site_aux(const char *content_path, const char *public_path/* , Variab
 	exit(EXIT_FAILURE);
       }
       if (str_equal(file_extension(f), "md")) {
-	//VariableMap *meta_map = init_variable_map();
-	//char *content = parse_markdown(f, meta_map);
+	VariableMap *meta_map = init_variable_map();
+	char *content = parse_markdown(f, meta_map);
 	char path_to_html_file[1024];
 	snprintf(path_to_html_file, sizeof(path_to_html_file), "%s/%s.html", public_path, file_name_without_extension(f));
 	FILE *out = fopen(path_to_html_file, "w");
@@ -62,7 +65,7 @@ void build_site_aux(const char *content_path, const char *public_path/* , Variab
 	  perror("tent.c - error creating output file for a markdown conversion");
 	  exit(EXIT_FAILURE);
 	}
-	//fill_template(content, config_map, meta_map, out);
+	fill_template(content, config_map, meta_map, template_map, out);
 	fclose(out);
       } else {
 	char path_to_public_file[1024];
@@ -72,7 +75,7 @@ void build_site_aux(const char *content_path, const char *public_path/* , Variab
 	  perror("tent.c - error creating file for copying to public directory");
 	  exit(EXIT_FAILURE);
 	}
-	//copy_file(f, out); // <-- this should be a new file util to implement
+	copy_file(f, out); // <-- this should be a new file util to implement
 	fclose(out);
       }
       fclose(f);
@@ -86,8 +89,9 @@ void print_help() {
 }
 
 void build_site() {
-  // VariableMap *config_map = init_variable_map();
-  // load_config("config.tent", config_map);
+  VariableMap *config_map = init_variable_map();
+  load_config("config.tent", config_map);
+  TemplateMap *template_map = load_template_map();
   DIR *dir;
   if ((dir = opendir("public"))) {
     closedir(dir);
@@ -95,7 +99,7 @@ void build_site() {
     return;
   }
   mkdir("public", DIR_PERMS);
-  build_site_aux("content", "public"/* , config_map */);
+  build_site_aux("content", "public", config_map, template_map);
 }
 
 void write_default_config(FILE* cf, char* site_name) {

@@ -37,10 +37,12 @@ void load_variable_map(char *key_val_pairs, VariableMap *var_map) {
     }
     var->type = determine_vartype(value);
     if (var->type == VT_STRING) {
-      var->value.str = trim_whitespace(value);
+      var->value.str = malloc(strlen(value) + 1);
+      strcpy(var->value.str, trim_whitespace(value));
     } else {
       printf("Array variable types not yet supported\n");
-      var->value.str = trim_whitespace(value);
+      var->value.str = malloc(strlen(value) + 1);
+      strcpy(var->value.str, trim_whitespace(value));
     }
     map_set(var_map, key, var);
     line = strtok_r(NULL, "\n", saveptr);
@@ -52,7 +54,9 @@ void free_variable_map(VariableMap *var_map) {
   map_iter_t iter = map_iter(var_map);
   const char *key;
   while ((key = map_next(var_map, &iter))) {
-    free(*map_get(var_map, key));
+    Variable *var = *map_get(var_map, key);
+    free(var->value.str);
+    free(var);
   }
   map_deinit(var_map);
   free(var_map);

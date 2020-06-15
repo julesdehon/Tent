@@ -18,7 +18,7 @@ tent: $(T_OBJS)
 	mkdir -p ../bin
 	$(CC) $(CFLAGS) $(T_OBJS) $(LDLIBS) -o ../bin/tent
 
-tent.o: string_utils.h file_utils.h template.h cmark_parser.h
+tent.o: string_utils.h file_utils.h template.h cmark_parser.h variable.h
 
 string_utils.o: string_utils.h
 

@@ -48,7 +48,7 @@ char* replace_inserts(char* template, char* content, VariableMap* config,
       char* cpy = calloc(pos_end - pos_start + 1, sizeof(char));
       strncpy(cpy, c_start, pos_end - pos_start);
       cpy[pos_end - pos_start] = '\0';
-      char* replacement = "something temp \n\n Yeah yeah"; // TODO: replace with get_insert()
+      char* replacement = "something temp \n\n Yeah yeah"; //get_insert()
       char* new_text = str_replace(final_text, cpy, replacement);
       free(final_text);
       final_text = new_text;
