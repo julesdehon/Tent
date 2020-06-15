@@ -86,7 +86,8 @@ void print_help() {
 }
 
 void build_site() {
-  //VariableMap *config_map = load_config("config.tent");
+  // VariableMap *config_map = init_variable_map();
+  // load_config("config.tent", config_map);
   DIR *dir;
   if ((dir = opendir("public"))) {
     closedir(dir);
