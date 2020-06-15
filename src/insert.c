@@ -17,15 +17,6 @@ char* parse_insert(char* insert) {
 
 char* get_insert(char* insert, char* content, VariableMap* config,
 	       	VariableMap* variables, TemplateMap* templates) {
-
-  const char *key;
-  map_iter_t iter = map_iter(variables);
-
-  printf("\nINSERT - %s\n", insert);
-  while ((key = map_next(variables, &iter))) {
-    printf("%s -> %s\n", key, (*map_get(variables, key))->value.str);
-  }
-
   char* insert_name = parse_insert(insert);
   char* insert_type = insert;
   if(str_equal("content",insert_type)) {
@@ -47,7 +38,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
   }
 
   if(str_equal("variable",insert_type)) {
-    Variable** var_ptr = map_get(config, insert_name);
+    Variable** var_ptr = map_get(variables, insert_name);
     if (!var_ptr) {
       printf("Missing variable: %s\n", insert_name);
     } else {
