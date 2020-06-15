@@ -81,6 +81,7 @@ void fill_template(char* content, VariableMap* config, VariableMap* variables,
   char* complete = replace_inserts(template->content, content, config,
       variables, templates);
   fputs(complete, out);
+  free(complete);
 }
 
 TemplateType get_type(char* name) {//We will add them later
