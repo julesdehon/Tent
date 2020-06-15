@@ -15,6 +15,33 @@ char* parse_insert(char* insert) {
   return "content";    	  
 }	
 
+// TODO: Supporting VT_ARRAY variables
+// Let's support another keyword other than content, call this range
+// The following insert thingy after range MUST BE an array, followed immediately
+// by a snippet or template. After that you can pass any number of other arguments.
+// parse_insert will recognise range, and load the other optional variables.
+// E.g.
+// {{ range config.nav-names snippet.nav-link config.nav-paths }}
+// In this case, for each value in config.nav-names, we will insert a nav-link snippet
+// that has access to all normal config and metadata variables but we also explicity
+// state that nav-paths is an argument (see below).
+// As this is a range insert, we keep track of the current index of the iteration.
+// We pass this index to the function that populates the snippet/template. If it comes
+// across an insert of type VT_ARRAY it uses this insert to insert the correct value.
+
+// TODO: Supporting positional and named arguments for inserts!
+// You can either provide ALL positional arguments or ALL names arguments
+// Positional:
+// {{ snippet.fancy-message "Hello there" }}
+// Named:
+// {{ snippet.youtube url="https://youtube..." }}
+// Both a Variable[] (positional) and a VariableMap (named) will be passed to the 
+// function that populates the snippet, however at least one will always be NULL.
+// (Both are null if no arguments are passed)
+// Snippets / Templates can then access arguments using the syntax
+// {{ args.0 }} for positional args where the number is the array index OR
+// {{ args.url }} for named arguments
+
 char* get_insert(char* insert, char* content, VariableMap* config,
 	       	VariableMap* variables, TemplateMap* templates) {
   char* insert_name = parse_insert(insert);
