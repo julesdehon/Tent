@@ -10,18 +10,21 @@ VariableType determine_vartype(char* value) {
   return VT_STRING;
 }
 
-// Takes a string of key: value pairs, for example
-// "title: first blog post\nauthor: Jules Dehon\ndescription: a sample post"
-// and returns a VariableMap containing each key and
-// its corresponding value
-VariableMap *load_variable_map(char *key_val_pairs) {
+VariableMap *init_variable_map(void) {
   VariableMap *var_map = malloc(sizeof(VariableMap));
   if (!var_map) {
     perror("Malloc error in load_variable_map");
     exit(EXIT_FAILURE);
   }
   map_init(var_map);
-  
+  return var_map;
+}
+
+// Takes a string of key: value pairs, for example
+// "title: first blog post\nauthor: Jules Dehon\ndescription: a sample post"
+// and returns a VariableMap containing each key and
+// its corresponding value
+void load_variable_map(char *key_val_pairs, VariableMap *var_map) {
   char **saveptr = &key_val_pairs;
   char *line = strtok_r(key_val_pairs, "\n", saveptr);
   while (line) {
@@ -42,7 +45,6 @@ VariableMap *load_variable_map(char *key_val_pairs) {
     map_set(var_map, key, var);
     line = strtok_r(NULL, "\n", saveptr);
   }
-  return var_map;
 }
 
 // Necessary because when loading variable maps, Variable is allocated on the heap
@@ -63,7 +65,7 @@ void free_variable_map(VariableMap *var_map) {
 // missing, throws an error
 const int num_required_keys = 2;
 const char* required_keys[2] = {"site_title", "author"};
-VariableMap *load_config(char *file_path) {
+void load_config(char *file_path, VariableMap *config_map) {
   FILE *f = fopen(file_path, "r");
   if (!f) {
     perror("variable.c: error reading config file");
@@ -71,14 +73,13 @@ VariableMap *load_config(char *file_path) {
   }
   long filelen;
   char *buffer = read_file_into_buffer(f, &filelen);
-  VariableMap *config_map = load_variable_map(buffer);
+  load_variable_map(buffer, config_map);
   for (int i = 0; i < num_required_keys; i++) {
     if (!map_get(config_map, required_keys[i])) {
       fprintf(stderr, "Config file missing required key, %s\n", required_keys[i]);
       exit(EXIT_FAILURE);
     }
   }
-  return config_map;
 }
 
 //Uncomment to test functionality.

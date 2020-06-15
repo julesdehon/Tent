@@ -58,3 +58,11 @@ char* file_name_without_extension(FILE* file) {
   free(full_path);
   return ret;
 }
+
+void copy_file(FILE *from, FILE *to) {
+  char byte = fgetc(from);
+  while(!feof(from)) {
+    fputc(byte, to);
+    byte = fgetc(from);
+  }
+}
