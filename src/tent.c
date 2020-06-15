@@ -53,7 +53,7 @@ void build_site_aux(const char *content_path, const char *public_path/* , Variab
 	exit(EXIT_FAILURE);
       }
       if (str_equal(file_extension(f), "md")) {
-	//VariableMap *meta_map;
+	//VariableMap *meta_map = init_variable_map();
 	//char *content = parse_markdown(f, meta_map);
 	char path_to_html_file[1024];
 	snprintf(path_to_html_file, sizeof(path_to_html_file), "%s/%s.html", public_path, file_name_without_extension(f));
