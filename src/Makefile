@@ -1,6 +1,6 @@
 CC      = gcc
 CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic -I../include
-LDLIBS = -L../lib -lcmark
+LDLIBS = -lcmark
 T_OBJS  = tent.o string_utils.o file_utils.o template.o map.o variable.o insert.o cmark_parser.o
 
 .SUFFIXES: .c .o
@@ -12,7 +12,7 @@ all: tent
 
 clean:
 	rm -f *.o
-	rm -rf ../bin
+	rm bin/tent
 
 tent: $(T_OBJS)
 	mkdir -p ../bin

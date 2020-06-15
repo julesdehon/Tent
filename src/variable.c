@@ -30,6 +30,10 @@ void load_variable_map(char *key_val_pairs, VariableMap *var_map) {
   while (line) {
     char* key = strtok_r(line, ":", &line);
     char* value = strtok_r(NULL, "\n", &line);
+    if (!key || !value) {
+      printf("Incorrectly formatted line.\n");
+      break;
+    }
     Variable *var = malloc(sizeof(Variable));
     if (!var) {
       perror("Malloc error in load_variable_map");

@@ -1,6 +1,7 @@
 #include "template.h"
 #include "file_utils.h"
 #include "string_utils.h"
+#include "insert.h"
 #include "map.h"
 
 #include <string.h>
@@ -45,14 +46,20 @@ char* replace_inserts(char* template, char* content, VariableMap* config,
     pos_start = c_start - final_text;
     if ((c_end = strstr(final_text+pos_start, INSERT_CLOSE))) {
       pos_end = c_end - final_text + strlen(INSERT_CLOSE); 
-      char* cpy = calloc(pos_end - pos_start + 1, sizeof(char));
-      strncpy(cpy, c_start, pos_end - pos_start);
-      cpy[pos_end - pos_start] = '\0';
-      char* replacement = "something temp \n\n Yeah yeah"; //get_insert()
-      char* new_text = str_replace(final_text, cpy, replacement);
+      char* orig = calloc(pos_end - pos_start + 1, sizeof(char));
+      strncpy(orig, c_start, pos_end - pos_start);
+      char* inside = calloc(strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE), 
+          sizeof(char));
+      strncpy(inside, orig + strlen(INSERT_OPEN), 
+          strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE));
+      orig[pos_end - pos_start] = '\0';
+      char* replacement = get_insert(trim_whitespace(inside), content, config,
+          variables, templates);
+      char* new_text = str_replace(final_text, orig, replacement);
       free(final_text);
       final_text = new_text;
-      free(cpy);
+      free(orig);
+      free(inside);
       /* free(replacement); */
     }
   }
