@@ -11,6 +11,12 @@
 #define MAX_LINE_LENGTH (1024)
 #define METADATA_DELIMITER ("---\n")
 
+char *md_to_html(char *text_to_convert, int length) {
+  char *res = malloc(100);
+  strcpy(res, "Our markdown converter has not yet been implemented");
+  return res;
+}
+
 char *parse_markdown(FILE *f, VariableMap *meta_map) {
   // Get file length for later use
   fseek(f, 0, SEEK_END);
@@ -42,8 +48,7 @@ char *parse_markdown(FILE *f, VariableMap *meta_map) {
   fread(remaining_text, 1, remaining_length, f);
 
   // Parse remaining text
-  char *content = cmark_markdown_to_html(remaining_text, remaining_length, 0);
-  //char *content = "LOL!";
+  char *content = convert_md_to_html(remaining_text, remaining_length);
   return content;
 }
 /* int main(void) { */

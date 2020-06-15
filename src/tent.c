@@ -6,7 +6,7 @@
 #include "string_utils.h"
 #include "template.h"
 #include "map.h"
-
+#include "cmark_parser.h"
 int main(int argc, char** argv) {
   /* FILE* file = fopen(argv[1], "r"); */
   /* if (!file) { */
@@ -22,3 +22,17 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+/* int main(void) { */
+/*   VariableMap *meta_map = init_variable_map(); */
+/*   FILE *f = fopen("markdown-eg.md", "r"); */
+/*   char *content = parse_markdown(f, meta_map); */
+/*   const char *key; */
+/*   map_iter_t iter = map_iter(meta_map); */
+/*   while ((key = map_next(meta_map, &iter))) { */
+/*     printf("%s -> %s\n", key, (*map_get(meta_map, key))->value.str); */
+/*   } */
+/*   free_variable_map(meta_map); */
+/*   printf("%s\n", content); */
+/*   free(content); */
+/*   return 0; */
+/* } */
