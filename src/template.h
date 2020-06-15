@@ -29,7 +29,7 @@ typedef struct Template {
 
 typedef map_t(Template*) TemplateMap; 
 
-Template* load_template(FILE* file, TemplateType type);
+Template* load_template(FILE* file, TemplateType type, char *file_name);
 
 void destroy_template(Template* t);
 

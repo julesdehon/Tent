@@ -55,11 +55,13 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
 	perror("tent.c - error reading files in content directory");
 	exit(EXIT_FAILURE);
       }
-      if (str_equal(file_extension(f), "md")) {
+      if (str_equal(file_extension_from_string(entry->d_name), "md")) {
 	VariableMap *meta_map = init_variable_map();
 	char *content = parse_markdown(f, meta_map);
 	char path_to_html_file[1024];
-	snprintf(path_to_html_file, sizeof(path_to_html_file), "%s/%s.html", public_path, file_name_without_extension(f));
+	char *without_extension = file_name_without_extension_from_string(entry->d_name);
+	snprintf(path_to_html_file, sizeof(path_to_html_file), "%s/%s.html", public_path, without_extension);
+	free(without_extension);
 	FILE *out = fopen(path_to_html_file, "w");
 	if (!out) {
 	  perror("tent.c - error creating output file for a markdown conversion");
@@ -69,7 +71,7 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
 	fclose(out);
       } else {
 	char path_to_public_file[1024];
-	snprintf(path_to_public_file, sizeof(path_to_public_file), "%s/%s", public_path, file_name(f));
+	snprintf(path_to_public_file, sizeof(path_to_public_file), "%s/%s", public_path, entry->d_name);
 	FILE *out = fopen(path_to_public_file, "w");
 	if (!out) {
 	  perror("tent.c - error creating file for copying to public directory");
