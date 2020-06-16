@@ -48,11 +48,10 @@ char* replace_inserts(char* template, char* content, VariableMap* config,
       pos_end = c_end - final_text + strlen(INSERT_CLOSE); 
       char* orig = calloc(pos_end - pos_start + 1, sizeof(char));
       strncpy(orig, c_start, pos_end - pos_start);
-      char* inside = calloc(strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE), 
+      char* inside = calloc(strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE) + 1, 
           sizeof(char));
       strncpy(inside, orig + strlen(INSERT_OPEN), 
           strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE));
-      orig[pos_end - pos_start] = '\0';
       char* replacement = get_insert(trim_whitespace(inside), content, config,
           variables, templates);
       char* new_text = str_replace(final_text, orig, replacement);
