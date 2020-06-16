@@ -5,6 +5,8 @@
 #include "template.h"
 
 char* get_insert(char* insert, char* content,
-	       	VariableMap* config, VariableMap* variables, TemplateMap* templates);
+	       	VariableMap* config, VariableMap* variables, 
+          VariableMap* args_named, Variable** args_pos,
+          int var_arg_index, TemplateMap* templates);
 
 #endif

@@ -27,7 +27,8 @@ void destroy_template(Template* t) {
 }
 
 char* replace_inserts(char* template, char* content, VariableMap* config,
-    VariableMap* variables, TemplateMap* templates) {
+    VariableMap* variables, VariableMap* args_named, Variable** args_pos,
+    int var_arg_index, TemplateMap* templates) {
 
   // 1. Find {{
   // 2. Find }}
@@ -54,13 +55,13 @@ char* replace_inserts(char* template, char* content, VariableMap* config,
           strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE));
       orig[pos_end - pos_start] = '\0';
       char* replacement = get_insert(trim_whitespace(inside), content, config,
-          variables, templates);
+          variables, args_named, args_pos, var_arg_index, templates);
       char* new_text = str_replace(final_text, orig, replacement);
       free(final_text);
       final_text = new_text;
       free(orig);
       free(inside);
-      /* free(replacement); */
+      free(replacement);
     }
   }
 
@@ -86,7 +87,7 @@ void fill_template(char* content, VariableMap* config, VariableMap* variables,
     return;
   }
   char* complete = replace_inserts(template->content, content, config,
-      variables, templates);
+      variables, NULL, NULL, 0, templates);
   fputs(complete, out);
   free(complete);
 }

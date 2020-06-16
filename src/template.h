@@ -39,6 +39,7 @@ void fill_template(char* content, VariableMap* config, VariableMap* variables,
 TemplateMap* load_template_map();
 
 char* replace_inserts(char* template, char* content, VariableMap* config,
-    VariableMap* variables, TemplateMap* templates);
+    VariableMap* variables, VariableMap* args_named, Variable** args_pos, 
+    int var_arg_index, TemplateMap* templates);
 
 #endif
