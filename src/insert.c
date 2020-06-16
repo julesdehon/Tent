@@ -74,20 +74,6 @@ void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** 
   }
 }
 
-// TODO: Supporting VT_ARRAY variables
-// Let's support another keyword other than content, call this range
-// The following insert thingy after range MUST BE an array, followed immediately
-// by a snippet or template. After that you can pass any number of other arguments.
-// parse_insert will recognise range, and load the other optional variables.
-// E.g.
-// {{ range config.nav-names snippet.nav-link config.nav-paths }}
-// In this case, for each value in config.nav-names, we will insert a nav-link snippet
-// that has access to all normal config and metadata variables but we also explicity
-// state that nav-paths is an argument (see below).
-// As this is a range insert, we keep track of the current index of the iteration.
-// We pass this index to the function that populates the snippet/template. If it comes
-// across an insert of type VT_ARRAY it uses this insert to insert the correct value.
-
 char* get_insert(char* insert, char* content, VariableMap* config,
 	       	VariableMap* variables, VariableMap* args_named, Variable** args_pos,
           int var_arg_index, int args_length, TemplateMap* templates) {
@@ -102,10 +88,6 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     return content;
   }
 
-  // TODO: Insert snippet/template in tokens[2] for each value in VT_ARRAY tokens[1]
-  // check token types, parse args
-  // loop through token[1]
-  // create string by repeatedly appending the result from replace_inserts
   if (str_equal("range", tokens[0])) {
     Variable* arr = NULL;
 
