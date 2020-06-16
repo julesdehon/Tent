@@ -98,7 +98,6 @@ int copy_directory(char *from, char *to, char *exclude) {
   }
 
   while((entry = readdir(dir)) != NULL) {
-    printf("I got here 2\n%s\n", entry->d_name);
     char from_path[PATH_MAX];
     char to_path[PATH_MAX];
     snprintf(from_path, sizeof(from_path), "%s/%s", from, entry->d_name);
@@ -111,17 +110,14 @@ int copy_directory(char *from, char *to, char *exclude) {
     } else {
       FILE *in = fopen(from_path, "r");
       if (!in) {
-	printf("file_utils.c - error reading file %s\n", from_path);
 	closedir(dir);
 	return -1;
       }
       FILE *out = fopen(to_path, "w");
       if (!out) {
-	printf("file_utils.c - error reading file %s\n", to_path);
 	closedir(dir);
 	return -1;
       }
-      printf("Copying:\nin: %s\nout: %s\n---\n", from_path, to_path);
       copy_file(in, out);
       fclose(in);
       fclose(out);
