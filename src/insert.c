@@ -172,8 +172,6 @@ char* get_insert(char* insert, char* content, VariableMap* config,
       strcat(tmp, replaced);
       free(ret);
       ret = tmp;
-      /* strcat(ret, replaced); */
-      printf("i = %d\nret = %s\n", i, ret);
     }
 
     return ret;
