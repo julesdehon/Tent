@@ -34,6 +34,7 @@ char** parse_insert(char* insert, int* out_count) {
   return ret;
 }
 
+// TODO: Allow existing variables to be passed as positional and named arguments
 void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** args_named) {
   int named = 0;
   int from_md = 0;
@@ -48,7 +49,7 @@ void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** 
   }
   for (int i = 0; i < arg_count; i++) {
     if (named) {
-      if (!strstr(args[0], "=&quot;")) {
+      if (!strstr(args[i], "=&quot;")) {
         printf("Cannot mix named and positional arguments!");
       }
       char* name = strtok(args[i], "=");
@@ -60,7 +61,7 @@ void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** 
       var->value.str = value;
       map_set(*args_named, name, var);
     } else {
-      if (strstr(args[0], "=&quot;")) {
+      if (strstr(args[i], "=&quot;")) {
         printf("Cannot mix named and positional arguments!");
       }
       char* value = from_md ? str_replace(args[i], "&quot;", "") : str_replace(args[i], "\"", "");
@@ -93,17 +94,89 @@ char* get_insert(char* insert, char* content, VariableMap* config,
   int token_count;
   char** tokens = parse_insert(insert, &token_count);
   
+  Variable** args_p = NULL;
+  VariableMap* args_n = NULL;
+
   // Content token
   if (str_equal("content", tokens[0])) {
     return content;
   }
 
-  // Insert snippet/template in tokens[2] for each value in VT_ARRAY tokens[1]
-  // TODO:
+  // TODO: Insert snippet/template in tokens[2] for each value in VT_ARRAY tokens[1]
   // check token types, parse args
   // loop through token[1]
   // create string by repeatedly appending the result from replace_inserts
   if (str_equal("range", tokens[0])) {
+    Variable* arr = NULL;
+
+    if (token_count < 3) {
+      printf("Formatting of range command incorrect.\n");
+      exit(EXIT_FAILURE);
+    }
+    char* arr_type = NULL;
+    char* arr_name = NULL;
+    parse_insert_value(tokens[1], &arr_type, &arr_name);
+    int arg_c = token_count - 3;
+    if (arr_type == NULL || arr_name == NULL) {
+      printf("Formatting of range command incorrect.\n");
+      exit(EXIT_FAILURE);
+    }
+
+    if (token_count > 3) {
+      parse_args(tokens+3, arg_c, &args_p, &args_n);
+    }
+
+    if (str_equal(arr_type, "config")) {
+      arr = *(map_get(config, arr_name));
+    } else if (str_equal(arr_type, "variable")) {
+      arr = *(map_get(variables, arr_name));
+    } else {
+      printf("First argument to range command must be a variable.\n");
+      exit(EXIT_FAILURE);
+    }
+
+    if (arr == NULL) {
+      printf("Variable %s does not exist.\n", arr_name);
+      exit(EXIT_FAILURE);
+    }
+
+    if (arr->type != VT_ARRAY) {
+      printf("First argument to range command must be an array.\n");
+      exit(EXIT_FAILURE);
+    }
+
+    char* snip_type;
+    char* snip_name;
+    Template* arr_temp; 
+    parse_insert_value(tokens[2], &snip_type, &snip_name);
+    if (str_equal(snip_type, "snippet")) {
+      arr_temp = *(map_get(templates, snip_name));
+      if (arr_temp == NULL) {
+        printf("Snippet named %s doesn't exist.\n", snip_name);
+        exit(EXIT_FAILURE);
+      }
+      if (arr_temp->type != TT_SNIPPET) {
+        printf("Range only supports snippets.\n");
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    char* ret = replace_inserts(arr_temp->content, NULL, config, variables,
+        args_n, args_p, 0, arg_c, templates);
+    printf("i = %d\nret = %s\n", 0, ret);
+    for (int i = 1; i < arr->length; i++) { 
+      char* replaced = replace_inserts(arr_temp->content, NULL, config, variables,
+        args_n, args_p, i, arg_c, templates);
+      char* tmp = calloc(strlen(ret) + strlen(replaced) + 1, sizeof(char));
+      strcpy(tmp, ret);
+      strcat(tmp, replaced);
+      free(ret);
+      ret = tmp;
+      /* strcat(ret, replaced); */
+      printf("i = %d\nret = %s\n", i, ret);
+    }
+
+    return ret;
 
   }
 
@@ -139,7 +212,11 @@ char* get_insert(char* insert, char* content, VariableMap* config,
         printf("Named argument %s does not exist!\n", insert_name);
         exit(EXIT_FAILURE);
       }
-      return var->value.str;
+      if (var->type == VT_ARRAY) {
+        return var->value.arr[var_arg_index];
+      } else {
+        return var->value.str;
+      }
     }
   }
 
@@ -151,8 +228,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     } else {
       variable = *var_ptr;
       if(variable->type == VT_ARRAY) {
-        perror("Not implemented yet!");
-        exit(EXIT_FAILURE);
+        return variable->value.arr[var_arg_index];
       }
       return variable->value.str; 
     }
@@ -165,8 +241,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     } else {
       variable = *var_ptr;
       if(variable->type == VT_ARRAY) {
-        perror("Not implemented yet!");
-        exit(EXIT_FAILURE);
+        return variable->value.arr[var_arg_index];
       }
       return variable->value.str; 
     }
@@ -180,18 +255,16 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     printf("Missing template: %s\n", insert_name);
   } else {
     Template* template = *tmp_ptr;
-    Variable** args_pos = NULL;
-    VariableMap* args_named = NULL;
-    int arg_count = token_count - 1;
+    int arg_c = token_count - 1;
     
     // Arguments start from second token
     if (token_count > 1) {
-      parse_args(tokens + 1, arg_count, &args_pos, &args_named);
+      parse_args(tokens + 1, arg_c, &args_p, &args_n);
     }
     if(str_equal("template",insert_type)) {
       if(template->type == TT_PAGE) {
         return replace_inserts(template->content, NULL, config, variables,
-            args_named, args_pos, 0, arg_count, templates);
+            args_n, args_p, 0, arg_c, templates);
       } else {
         printf("%s is not a template insert.\n", insert_name);
         exit(EXIT_FAILURE);
@@ -201,7 +274,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     if(str_equal("snippet",insert_type)) {
       if(template->type == TT_SNIPPET) {
         return replace_inserts(template->content, NULL, config, variables,
-            args_named, args_pos, 0, arg_count, templates);
+            args_n, args_p, 0, arg_c, templates);
       } else {
         printf("%s is not a snippet insert.\n", insert_name);
         exit(EXIT_FAILURE);
