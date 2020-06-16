@@ -12,23 +12,23 @@
 #include "cmark_parser.h"
 #include "template.h"
 
-#define HELP_MESSAGE "USAGE: tent <command> [options]\n\n"		\
-  "Commands:\n"								\
-  "- build (build static files to public from the theme and content)\n"	\
-  "- create [site-name] (setup a new tent project in the current directory with default config and site-name)\n"
+#define HELP_MESSAGE ("USAGE: tent <command> [options]\n\n"		\
+		      "Commands:\n"					\
+		      "- build (build static files to public from the theme and content)\n" \
+		      "- create [site-name] (setup a new tent project in the current directory with default config and site-name)\n")
 
-#define COM_BUILD "build"
-#define COM_CREATE "create"
-#define COM_NEW "new"
+#define COM_BUILD ("build")
+#define COM_CREATE ("create")
+#define COM_NEW ("new")
 
-#define DIR_PERMS 0700
+#define DIR_CONTENT ("content")
+#define DIR_THEME ("theme")
+#define DIR_PUBLIC ("public")
+#define FIL_CONFIG ("config.tent")
 
-#define DIR_CONTENT "/content"
-#define DIR_THEME "/theme"
-#define FIL_CONFIG "/config.tent"
+#define REPLACE_EXTENSION ("md")
 
-void build_site_aux(const char *content_path, const char *public_path, VariableMap *config_map, TemplateMap *template_map)
-{
+void build_site_aux(const char *content_path, const char *public_path, VariableMap *config_map, TemplateMap *template_map) {
   DIR *dir;
   struct dirent *entry;
 
@@ -39,8 +39,8 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
 
   while ((entry = readdir(dir)) != NULL) {
     if (entry->d_type == DT_DIR) {
-      char content_directory_path[1024];
-      char public_directory_path[1024];
+      char content_directory_path[PATH_MAX];
+      char public_directory_path[PATH_MAX];
       if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 	continue;
       snprintf(content_directory_path, sizeof(content_directory_path), "%s/%s", content_path, entry->d_name);
@@ -48,17 +48,17 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
       mkdir(public_directory_path, DIR_PERMS);
       build_site_aux(content_directory_path, public_directory_path, config_map, template_map);
     } else {
-      char path_to_content_file[1024];
+      char path_to_content_file[PATH_MAX];
       snprintf(path_to_content_file, sizeof(path_to_content_file), "%s/%s", content_path, entry->d_name);
       FILE *f = fopen(path_to_content_file, "r");
       if (!f) {
 	perror("tent.c - error reading files in content directory");
 	exit(EXIT_FAILURE);
       }
-      if (str_equal(file_extension_from_string(entry->d_name), "md")) {
+      if (str_equal(file_extension_from_string(entry->d_name), REPLACE_EXTENSION)) {
 	VariableMap *meta_map = init_variable_map();
 	char *content = parse_markdown(f, meta_map);
-	char path_to_html_file[1024];
+	char path_to_html_file[PATH_MAX];
 	char *without_extension = file_name_without_extension_from_string(entry->d_name);
 	snprintf(path_to_html_file, sizeof(path_to_html_file), "%s/%s.html", public_path, without_extension);
 	free(without_extension);
@@ -70,14 +70,14 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
 	fill_template(content, config_map, meta_map, template_map, out);
 	fclose(out);
       } else {
-	char path_to_public_file[1024];
+	char path_to_public_file[PATH_MAX];
 	snprintf(path_to_public_file, sizeof(path_to_public_file), "%s/%s", public_path, entry->d_name);
 	FILE *out = fopen(path_to_public_file, "w");
 	if (!out) {
 	  perror("tent.c - error creating file for copying to public directory");
 	  exit(EXIT_FAILURE);
 	}
-	copy_file(f, out); // <-- this should be a new file util to implement
+	copy_file(f, out);
 	fclose(out);
       }
       fclose(f);
@@ -92,16 +92,12 @@ void print_help() {
 
 void build_site() {
   VariableMap *config_map = init_variable_map();
-  load_config("config.tent", config_map);
+  load_config(FIL_CONFIG, config_map);
   TemplateMap *template_map = load_template_map();
-  DIR *dir;
-  if ((dir = opendir("public"))) {
-    closedir(dir);
-    printf("Please delete the public folder before building.\n");
-    return;
-  }
-  mkdir("public", DIR_PERMS);
-  build_site_aux("content", "public", config_map, template_map);
+  del_directory(DIR_PUBLIC);
+  mkdir(DIR_PUBLIC, DIR_PERMS);
+  copy_directory(DIR_THEME, DIR_PUBLIC, "templates");
+  build_site_aux(DIR_CONTENT, DIR_PUBLIC, config_map, template_map);
 }
 
 void write_default_config(FILE* cf, char* site_name) {
@@ -111,24 +107,27 @@ void write_default_config(FILE* cf, char* site_name) {
 void create_new_project(char* site_name) {
   struct stat st = {0};
   if (stat(site_name, &st) == -1) {
-    mkdir(site_name, DIR_PERMS);
+    if (mkdir(site_name, DIR_PERMS)) {
+      perror("tent.c - couldn't make new site directory ");
+      return;
+    }
   } else {
     printf("Directory called %s already exists!\n", site_name);
     return;
   }
 
-  char* content_dir = str_append(site_name, DIR_CONTENT);
+  char content_dir[strlen(site_name) + strlen(DIR_CONTENT) + 2]; // +1 for '/', +1 for '\0' = +2
+  snprintf(content_dir, sizeof(content_dir), "%s/%s", site_name, DIR_CONTENT);
   mkdir(content_dir, DIR_PERMS);
-  char* theme_dir = str_append(site_name, DIR_THEME);
+  char theme_dir[strlen(site_name) + strlen (DIR_THEME) + 2];
+  snprintf(theme_dir, sizeof(theme_dir), "%s/%s", site_name, DIR_THEME);
   mkdir(theme_dir, DIR_PERMS);
-  char* config_file = str_append(site_name, FIL_CONFIG);
+  char config_file[strlen(site_name) + strlen(FIL_CONFIG) + 2];
+  snprintf(config_file, sizeof(config_file), "%s/%s", site_name, FIL_CONFIG);
   FILE* cf = fopen(config_file, "w");
 
   write_default_config(cf, site_name);
 
-  free(content_dir);
-  free(theme_dir);
-  free(config_file);
   fclose(cf);
 }
 
@@ -167,3 +166,4 @@ int main(int argc, char** argv) {
 /*   free(content); */
 /*   return 0; */
 /* } */
+   
