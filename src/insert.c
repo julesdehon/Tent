@@ -6,10 +6,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
-void parse_insert_value(char* insert, char* type, char* name) {
-  type = strtok(insert,".");
-  name = strtok(NULL, ".");
+void parse_insert_value(char* insert, char** type, char** name) {
+  *type = strtok(insert, ".");
+  *name = strtok(NULL, ".");
 }	
 
 char** parse_insert(char* insert, int* out_count) {
@@ -33,8 +34,39 @@ char** parse_insert(char* insert, int* out_count) {
   return ret;
 }
 
-void parse_args(char** args, Variable** args_pos, VariableMap* args_named) {
-
+void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** args_named) {
+  int named = 0;
+  if (strstr(args[0], "=&quot;")) {
+    named = 1;
+    *args_named = init_variable_map();
+  } else {
+    *args_pos = calloc(arg_count, sizeof(Variable*));
+  }
+  for (int i = 0; i < arg_count; i++) {
+    if (named) {
+      if (!strstr(args[0], "=&quot;")) {
+        printf("Cannot mix named and positional arguments!");
+      }
+      char* name = strtok(args[i], "=");
+      char* value = strtok(NULL, "");
+      value = str_replace(value, "&quot;", "");
+      Variable* var = malloc(sizeof(Variable));
+      var->type = VT_STRING;
+      var->length = strlen(value);
+      var->value.str = value;
+      map_set(*args_named, name, var);
+    } else {
+      if (strstr(args[0], "=&quot;")) {
+        printf("Cannot mix named and positional arguments!");
+      }
+      char* value = str_replace(args[i], "&quot;", "");
+      Variable* var = malloc(sizeof(Variable));
+      var->type = VT_STRING;
+      var->length = strlen(value);
+      var->value.str = value;
+      *args_pos[i] = var;
+    }
+  }
 }
 
 // TODO: Supporting VT_ARRAY variables
@@ -51,22 +83,9 @@ void parse_args(char** args, Variable** args_pos, VariableMap* args_named) {
 // We pass this index to the function that populates the snippet/template. If it comes
 // across an insert of type VT_ARRAY it uses this insert to insert the correct value.
 
-// TODO: Supporting positional and named arguments for inserts!
-// You can either provide ALL positional arguments or ALL names arguments
-// Positional:
-// {{ snippet.fancy-message "Hello there" }}
-// Named:
-// {{ snippet.youtube url="https://youtube..." }}
-// Both a Variable[] (positional) and a VariableMap (named) will be passed to the 
-// function that populates the snippet, however at least one will always be NULL.
-// (Both are null if no arguments are passed)
-// Snippets / Templates can then access arguments using the syntax
-// {{ args.0 }} for positional args where the number is the array index OR
-// {{ args.url }} for named arguments
-
 char* get_insert(char* insert, char* content, VariableMap* config,
 	       	VariableMap* variables, VariableMap* args_named, Variable** args_pos,
-          int var_arg_index, TemplateMap* templates) {
+          int var_arg_index, int args_length, TemplateMap* templates) {
   int token_count;
   char** tokens = parse_insert(insert, &token_count);
   
@@ -81,13 +100,44 @@ char* get_insert(char* insert, char* content, VariableMap* config,
   // loop through token[1]
   // create string by repeatedly appending the result from replace_inserts
   if (str_equal("range", tokens[0])) {
-    
+
   }
 
   // VARIABLE ONLY
   char* insert_type = NULL;
   char* insert_name = NULL;
-  parse_insert_value(tokens[0], insert_type, insert_name);
+  parse_insert_value(tokens[0], &insert_type, &insert_name);
+
+  if (insert_type == NULL || insert_name == NULL) {
+    printf("Could not parse insert: %s\n", tokens[0]);
+    exit(EXIT_FAILURE);
+  }
+
+  if (str_equal("args", insert_type)) {
+    if (isdigit(insert_name[0])) {
+      int index = atoi(insert_name);
+      if (index < 0 || index >= args_length) {
+        printf("Index %d out of bounds for positional arguments\n", index);
+        exit(EXIT_FAILURE);
+      } 
+      if (!args_pos) {
+        printf("No positional arguments exist!\n");
+        exit(EXIT_FAILURE);
+      }
+      return args_pos[index]->value.str;
+    } else {
+      if (!args_named) {
+        printf("No named arguments exist!\n");
+        exit(EXIT_FAILURE);
+      }
+      Variable* var = (*map_get(args_named, insert_name));
+      if (!var) {
+        printf("Named argument %s does not exist!\n", insert_name);
+        exit(EXIT_FAILURE);
+      }
+      return var->value.str;
+    }
+  }
 
   Variable* variable;
   if(str_equal("config",insert_type)) {
@@ -128,15 +178,16 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     Template* template = *tmp_ptr;
     Variable** args_pos = NULL;
     VariableMap* args_named = NULL;
+    int arg_count = token_count - 1;
     
     // Arguments start from second token
     if (token_count > 1) {
-      parse_args(tokens + 1, args_pos, args_named);
+      parse_args(tokens + 1, arg_count, &args_pos, &args_named);
     }
     if(str_equal("template",insert_type)) {
       if(template->type == TT_PAGE) {
-        // replace_inserts but with args
-        return template->content;
+        return replace_inserts(template->content, NULL, config, variables,
+            args_named, args_pos, 0, arg_count, templates);
       } else {
         printf("%s is not a template insert.\n", insert_name);
         exit(EXIT_FAILURE);
@@ -145,8 +196,8 @@ char* get_insert(char* insert, char* content, VariableMap* config,
 
     if(str_equal("snippet",insert_type)) {
       if(template->type == TT_SNIPPET) {
-        // replace_inserts but with args
-        return template->content;
+        return replace_inserts(template->content, NULL, config, variables,
+            args_named, args_pos, 0, arg_count, templates);
       } else {
         printf("%s is not a snippet insert.\n", insert_name);
         exit(EXIT_FAILURE);

@@ -18,6 +18,8 @@ look like:
 Note that --- not considering the asterisk --- the actual text
 content starts at 4-columns in.
 
+{{ snippet.youtube url="https://www.youtube.com/watch?v=IZ8X8_9fSE4" }}
+
 > Block quotes are
 > written like so.
 >
