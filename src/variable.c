@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_LIST_ITEMS (500)
+
 VariableType determine_vartype(char* value) {
   if (value[0] == '[' && value[strlen(value) - 1] == ']') {
     return VT_ARRAY;
@@ -51,10 +53,14 @@ void load_variable_map(char *key_val_pairs, VariableMap *var_map) {
     } else {
       value++;
       value[strlen(value) - 1] = '\0';
-      char *temp_array[1024]; // Hopefully no one passes more than 1024 arguments
+      char *temp_array[MAX_LIST_ITEMS];
       char *current = strtok(value, ",");
       int counter = 0;
       while (current) {
+	if (counter >= MAX_LIST_ITEMS) {
+	  printf("Cannot have more than %d list items in a variable, taking first %d.\n", MAX_LIST_ITEMS, MAX_LIST_ITEMS);
+	  break;
+	}
 	temp_array[counter] = malloc((strlen(current) + 1) * sizeof(char));
 	strcpy(temp_array[counter], current);
 	counter++;

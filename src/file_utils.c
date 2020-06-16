@@ -1,3 +1,5 @@
+#define _XOPEN_SOURCE 500 // used by ftw.h
+
 #include "file_utils.h"
 #include "string_utils.h"
 
@@ -5,6 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <ftw.h>
+
 
 // Remember to free the returned buffer if non null!
 char* read_file_into_buffer(FILE* file, long* filelen) {
@@ -18,12 +23,12 @@ char* read_file_into_buffer(FILE* file, long* filelen) {
 }
 
 char* file_path(FILE* file) {
-  char path[1024];
-  char* result = calloc(1024, sizeof(char));
+  char path[PATH_MAX];
+  char* result = calloc(PATH_MAX, sizeof(char));
   
   int fd = fileno(file);
   sprintf(path, "/proc/self/fd/%d", fd);
-  readlink(path, result, 1024 * sizeof(char));
+  readlink(path, result, PATH_MAX * sizeof(char));
   
   return result;
 }
@@ -81,4 +86,59 @@ void copy_file(FILE *from, FILE *to) {
     fputc(byte, to);
     byte = fgetc(from);
   }
+}
+
+int copy_directory(char *from, char *to, char *exclude) {
+  DIR *dir;
+  struct dirent *entry;
+
+  if (!(dir = opendir(from))) {
+    printf("Could not open directory '%s'\n", from);
+    return -1;
+  }
+
+  while((entry = readdir(dir)) != NULL) {
+    printf("I got here 2\n%s\n", entry->d_name);
+    char from_path[PATH_MAX];
+    char to_path[PATH_MAX];
+    snprintf(from_path, sizeof(from_path), "%s/%s", from, entry->d_name);
+    snprintf(to_path, sizeof(to_path), "%s/%s",to, entry->d_name);    
+    if (entry->d_type == DT_DIR) {
+      if (str_equal(entry->d_name, ".") || str_equal(entry->d_name, "..") || str_equal(entry->d_name, exclude))
+	continue;
+      mkdir(to_path, DIR_PERMS);
+      copy_directory(from_path, to_path, "");
+    } else {
+      FILE *in = fopen(from_path, "r");
+      if (!in) {
+	printf("file_utils.c - error reading file %s\n", from_path);
+	closedir(dir);
+	return -1;
+      }
+      FILE *out = fopen(to_path, "w");
+      if (!out) {
+	printf("file_utils.c - error reading file %s\n", to_path);
+	closedir(dir);
+	return -1;
+      }
+      printf("Copying:\nin: %s\nout: %s\n---\n", from_path, to_path);
+      copy_file(in, out);
+      fclose(in);
+      fclose(out);
+    }
+  }
+  closedir(dir);
+  return 0;
+}
+
+int remove_file_callback(const char *path, const struct stat *stat_buffer,
+			 int typeflag, struct FTW *ftwbuf) {
+  int rv = remove(path);
+  if (rv)
+    perror(path);
+  return rv;
+}
+
+int del_directory(char *path) {
+  return nftw(path, remove_file_callback, 64, FTW_DEPTH | FTW_PHYS);
 }

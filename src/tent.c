@@ -1,5 +1,3 @@
-#define _XOPEN_SOURCE 500 // used by ftw.h
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +5,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
-#include <ftw.h>
 
 #include "string_utils.h"
 #include "file_utils.h"
@@ -24,8 +21,6 @@
 #define COM_CREATE "create"
 #define COM_NEW "new"
 
-#define DIR_PERMS 0700
-
 #define DIR_CONTENT "/content"
 #define DIR_THEME "/theme"
 #define FIL_CONFIG "/config.tent"
@@ -41,8 +36,8 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
 
   while ((entry = readdir(dir)) != NULL) {
     if (entry->d_type == DT_DIR) {
-      char content_directory_path[1024];
-      char public_directory_path[1024];
+      char content_directory_path[PATH_MAX];
+      char public_directory_path[PATH_MAX];
       if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 	continue;
       snprintf(content_directory_path, sizeof(content_directory_path), "%s/%s", content_path, entry->d_name);
@@ -50,7 +45,7 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
       mkdir(public_directory_path, DIR_PERMS);
       build_site_aux(content_directory_path, public_directory_path, config_map, template_map);
     } else {
-      char path_to_content_file[1024];
+      char path_to_content_file[PATH_MAX];
       snprintf(path_to_content_file, sizeof(path_to_content_file), "%s/%s", content_path, entry->d_name);
       FILE *f = fopen(path_to_content_file, "r");
       if (!f) {
@@ -60,7 +55,7 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
       if (str_equal(file_extension_from_string(entry->d_name), "md")) {
 	VariableMap *meta_map = init_variable_map();
 	char *content = parse_markdown(f, meta_map);
-	char path_to_html_file[1024];
+	char path_to_html_file[PATH_MAX];
 	char *without_extension = file_name_without_extension_from_string(entry->d_name);
 	snprintf(path_to_html_file, sizeof(path_to_html_file), "%s/%s.html", public_path, without_extension);
 	free(without_extension);
@@ -72,7 +67,7 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
 	fill_template(content, config_map, meta_map, template_map, out);
 	fclose(out);
       } else {
-	char path_to_public_file[1024];
+	char path_to_public_file[PATH_MAX];
 	snprintf(path_to_public_file, sizeof(path_to_public_file), "%s/%s", public_path, entry->d_name);
 	FILE *out = fopen(path_to_public_file, "w");
 	if (!out) {
@@ -88,21 +83,6 @@ void build_site_aux(const char *content_path, const char *public_path, VariableM
   closedir(dir);
 }
 
-int remove_file_callback(const char *path, const struct stat *stat_buffer, int typeflag, struct FTW *ftwbuf){
-  int rv = remove(path);
-  if (rv)
-    perror(path);
-  return rv;
-}
-
-int del_directory(char *path) {
-  return nftw(path, remove_file_callback, 64, FTW_DEPTH | FTW_PHYS);
-}
-
-/* int copy_file_callback(const char *path, const struct stat *stat_buffer, int typeflag, struct FTW *ftwbuf) { */
-  
-/* } */
-
 void print_help() {
   printf("\n%s\n", HELP_MESSAGE);
 }
@@ -113,6 +93,7 @@ void build_site() {
   TemplateMap *template_map = load_template_map();
   del_directory("public");
   mkdir("public", DIR_PERMS);
+  copy_directory("theme", "public", "templates");
   build_site_aux("content", "public", config_map, template_map);
 }
 
