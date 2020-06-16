@@ -49,11 +49,10 @@ char* replace_inserts(char* template, char* content, VariableMap* config,
       pos_end = c_end - final_text + strlen(INSERT_CLOSE); 
       char* orig = calloc(pos_end - pos_start + 1, sizeof(char));
       strncpy(orig, c_start, pos_end - pos_start);
-      char* inside = calloc(strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE), 
+      char* inside = calloc(strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE) + 1, 
           sizeof(char));
       strncpy(inside, orig + strlen(INSERT_OPEN), 
           strlen(orig) - strlen(INSERT_OPEN) - strlen(INSERT_CLOSE));
-      orig[pos_end - pos_start] = '\0';
       char* replacement = get_insert(trim_whitespace(inside), content, config,
           variables, args_named, args_pos, var_arg_index, templates);
       char* new_text = str_replace(final_text, orig, replacement);
@@ -68,9 +67,9 @@ char* replace_inserts(char* template, char* content, VariableMap* config,
   return final_text;
 }
 
-Template* load_template(FILE* file, TemplateType type) {
+Template* load_template(FILE* file, TemplateType type, char *filename) {
   Template* t = create_template();
-  t->name = file_name_without_extension(file);
+  t->name = file_name_without_extension_from_string(filename);
   t->type = type;
   t->content = read_file_into_buffer(file, &t->content_len);
   return t;
@@ -144,8 +143,10 @@ TemplateMap* load_template_map() {
         perror("Could not open directory!");
         exit(EXIT_FAILURE);  
       }
-      Template* template = load_template(fp,get_type(ent->d_name));
-      map_set(map,file_name_without_extension(fp),template);
+
+      Template* template = load_template(fp,get_type(ent->d_name), sub_ent->d_name);
+      char *without_extension = file_name_without_extension_from_string(sub_ent->d_name);
+      map_set(map,without_extension,template);
       strcpy(path_name + strlen(path_name) - strlen(sub_ent->d_name), path_name + strlen(path_name));
       fclose(fp);
     }

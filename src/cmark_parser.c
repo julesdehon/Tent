@@ -27,9 +27,7 @@ char *parse_markdown(FILE *f, VariableMap *meta_map) {
   char line[MAX_LINE_LENGTH];
   fgets(line, sizeof(line), f);
   if (!str_equal(line, METADATA_DELIMITER)) {
-    char *invalid_file_name = file_name(f);
-    printf("Incorrect format in markdown file, %s. Missing metadata section after ---\n", invalid_file_name);
-    free(invalid_file_name);
+    printf("Incorrect format in markdown file.  Missing metadata section after ---\n");
     exit(EXIT_FAILURE);
   }
   

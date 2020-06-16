@@ -10,6 +10,7 @@ typedef enum VariableType {
 
 typedef struct Variable {
   VariableType type;
+  unsigned int length;
   union {
     char* str;
     char** arr;

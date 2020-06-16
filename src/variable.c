@@ -7,6 +7,9 @@
 #include <string.h>
 
 VariableType determine_vartype(char* value) {
+  if (value[0] == '[' && value[strlen(value) - 1] == ']') {
+    return VT_ARRAY;
+  }
   return VT_STRING;
 }
 
@@ -39,14 +42,27 @@ void load_variable_map(char *key_val_pairs, VariableMap *var_map) {
       perror("Malloc error in load_variable_map");
       exit(EXIT_FAILURE);
     }
+    value = trim_whitespace(value);
     var->type = determine_vartype(value);
     if (var->type == VT_STRING) {
       var->value.str = malloc(strlen(value) + 1);
-      strcpy(var->value.str, trim_whitespace(value));
+      strcpy(var->value.str, value);
+      var->length = strlen(value);
     } else {
-      printf("Array variable types not yet supported\n");
-      var->value.str = malloc(strlen(value) + 1);
-      strcpy(var->value.str, trim_whitespace(value));
+      value++;
+      value[strlen(value) - 1] = '\0';
+      char *temp_array[1024]; // Hopefully no one passes more than 1024 arguments
+      char *current = strtok(value, ",");
+      int counter = 0;
+      while (current) {
+	temp_array[counter] = malloc((strlen(current) + 1) * sizeof(char));
+	strcpy(temp_array[counter], current);
+	counter++;
+	current = strtok(NULL, ",");
+      }
+      var->length = counter;
+      var->value.arr = malloc((var->length) * sizeof(char *));
+      memcpy(var->value.arr, temp_array, (var->length) * sizeof(char *));
     }
     map_set(var_map, key, var);
     line = strtok_r(NULL, "\n", saveptr);
@@ -59,7 +75,14 @@ void free_variable_map(VariableMap *var_map) {
   const char *key;
   while ((key = map_next(var_map, &iter))) {
     Variable *var = *map_get(var_map, key);
-    free(var->value.str);
+    if (var->type == VT_STRING) {
+      free(var->value.str);
+    } else if (var->type == VT_ARRAY) {
+      for (int i = 0; i < var->length; i++) {
+	free(var->value.arr[i]);
+      }
+      free(var->value.arr);
+    }
     free(var);
   }
   map_deinit(var_map);
@@ -103,11 +126,18 @@ void load_config(char *file_path, VariableMap *config_map) {
 /*   return 0; */
 /* } */
 /* int main(void) { */
-/*   VariableMap *config_map = load_config("config.tent"); */
+/*   VariableMap *config_map = init_variable_map(); */
+/*   load_config("config.tent", config_map); */
 /*   const char *key; */
 /*   map_iter_t iter = map_iter(config_map); */
 /*   while ((key = map_next(config_map, &iter))) { */
-/*     printf("%s -> %s\n", key, (*map_get(config_map, key))->value.str); */
+/*     Variable *var = *map_get(config_map, key); */
+/*     if (var->type == VT_STRING) */
+/*       printf("%s -> %s\n", key, var->value.str); */
+/*     if (var->type == VT_ARRAY) { */
+/*       for (int i = 0; i < var->length; i++) */
+/* 	printf("%s[%d] -> %s\n", key, i, var->value.arr[i]); */
+/*     } */
 /*   } */
 /*   free_variable_map(config_map); */
 /*   return 0; */
