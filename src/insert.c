@@ -36,8 +36,12 @@ char** parse_insert(char* insert, int* out_count) {
 
 void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** args_named) {
   int named = 0;
-  if (strstr(args[0], "=&quot;")) {
+  int from_md = 0;
+  if (strstr(args[0], "=&quot;") || strstr(args[0], "=\"")) {
     named = 1;
+    if (!strstr(args[0], "=\"")) {
+      from_md = 1;
+    }
     *args_named = init_variable_map();
   } else {
     *args_pos = calloc(arg_count, sizeof(Variable*));
@@ -49,7 +53,7 @@ void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** 
       }
       char* name = strtok(args[i], "=");
       char* value = strtok(NULL, "");
-      value = str_replace(value, "&quot;", "");
+      value = from_md ? str_replace(value, "&quot;", "") : str_replace(value, "\"", "");
       Variable* var = malloc(sizeof(Variable));
       var->type = VT_STRING;
       var->length = strlen(value);
@@ -59,7 +63,7 @@ void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** 
       if (strstr(args[0], "=&quot;")) {
         printf("Cannot mix named and positional arguments!");
       }
-      char* value = str_replace(args[i], "&quot;", "");
+      char* value = from_md ? str_replace(args[i], "&quot;", "") : str_replace(args[i], "\"", "");
       Variable* var = malloc(sizeof(Variable));
       var->type = VT_STRING;
       var->length = strlen(value);
@@ -204,5 +208,6 @@ char* get_insert(char* insert, char* content, VariableMap* config,
       }
     }  
   }
-  return  "111";
+  printf("Unrecognized insert type %s\n", insert_type);
+  exit(EXIT_FAILURE);
 }	
