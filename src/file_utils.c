@@ -1,4 +1,6 @@
+#ifdef __linux__
 #define _XOPEN_SOURCE 500 // used by ftw.h
+#endif
 
 #include "file_utils.h"
 #include "string_utils.h"
@@ -9,7 +11,6 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <ftw.h>
-
 
 // Remember to free the returned buffer if non null!
 char* read_file_into_buffer(FILE* file, long* filelen) {
@@ -101,7 +102,7 @@ int copy_directory(char *from, char *to, char *exclude) {
     char from_path[PATH_MAX];
     char to_path[PATH_MAX];
     snprintf(from_path, sizeof(from_path), "%s/%s", from, entry->d_name);
-    snprintf(to_path, sizeof(to_path), "%s/%s",to, entry->d_name);    
+    snprintf(to_path, sizeof(to_path), "%s/%s",to, entry->d_name);
     if (entry->d_type == DT_DIR) {
       if (str_equal(entry->d_name, ".") || str_equal(entry->d_name, "..") || str_equal(entry->d_name, exclude))
 	continue;
@@ -138,3 +139,4 @@ int remove_file_callback(const char *path, const struct stat *stat_buffer,
 int del_directory(char *path) {
   return nftw(path, remove_file_callback, 64, FTW_DEPTH | FTW_PHYS);
 }
+

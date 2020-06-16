@@ -1,5 +1,5 @@
 CC      = gcc
-CFLAGS  = -Wall -g -D_DEFAULT_SOURCE -std=c99 -Werror -pedantic -I../include
+CFLAGS  = -Wall -g -D_DEFAULT_SOURCE -Werror -std=c99 -pedantic -I../include
 LDLIBS = -lcmark
 T_OBJS  = tent.o string_utils.o file_utils.o template.o map.o variable.o insert.o cmark_parser.o
 
@@ -22,7 +22,7 @@ tent.o: string_utils.h file_utils.h template.h cmark_parser.h variable.h
 
 string_utils.o: string_utils.h
 
-file_utils.o: file_utils.h
+file_utils.o: file_utils.h string_utils.h
 
 template.o: template.h file_utils.h map.h
 

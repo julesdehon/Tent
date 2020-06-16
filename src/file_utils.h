@@ -2,6 +2,7 @@
 #define FILE_UTILS_H
 
 #include <stdio.h>
+#include <limits.h>
 
 #define DIR_PERMS 0700
 
