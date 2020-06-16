@@ -48,7 +48,7 @@ void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** 
   }
   for (int i = 0; i < arg_count; i++) {
     if (named) {
-      if (!strstr(args[0], "=&quot;")) {
+      if (!strstr(args[i], "=&quot;")) {
         printf("Cannot mix named and positional arguments!");
       }
       char* name = strtok(args[i], "=");
@@ -60,7 +60,7 @@ void parse_args(char** args, int arg_count, Variable*** args_pos, VariableMap** 
       var->value.str = value;
       map_set(*args_named, name, var);
     } else {
-      if (strstr(args[0], "=&quot;")) {
+      if (strstr(args[i], "=&quot;")) {
         printf("Cannot mix named and positional arguments!");
       }
       char* value = from_md ? str_replace(args[i], "&quot;", "") : str_replace(args[i], "\"", "");
