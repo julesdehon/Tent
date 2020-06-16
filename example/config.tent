@@ -3,4 +3,5 @@ site_title: Tent2
 author: Jules Dehon
 site-url: www.tent-static-site.com
 home-description: A simple static site generator written in C
-nav-names: hello
+nav-names: [home, about, blog]
+nav-paths: [index.html, about.html, blog.html]

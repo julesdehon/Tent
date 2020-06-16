@@ -78,7 +78,7 @@ Template* load_template(FILE* file, TemplateType type, char *filename) {
 void fill_template(char* content, VariableMap* config, VariableMap* variables,
     TemplateMap* templates, FILE* out) {
   Variable* tmp_var = (*map_get(variables, TEMPLATE_STR));
-  // For now we only supprt VT_STRING
+  // TODO: Make sure template variable is a VT_STRING
   Template* template = (*map_get(templates, tmp_var->value.str));
   if (template == NULL) {
     printf("There does not exist a template with name %s\n", 
