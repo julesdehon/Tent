@@ -139,19 +139,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     char* snip_name;
     Template* arr_temp; 
     parse_insert_value(tokens[2], &snip_type, &snip_name);
-<<<<<<< HEAD
-    if (str_equal(snip_type, SNIPPET)) {
-      arr_temp = *(map_get(templates, snip_name));
-      if (arr_temp == NULL) {
-        printf("Snippet named %s doesn't exist.\n", snip_name);
-        exit(EXIT_FAILURE);
-      }
-      if (arr_temp->type != TT_SNIPPET) {
-        printf("Range only supports snippets.\n");
-        exit(EXIT_FAILURE);
-      }
-=======
-    if (!str_equal(snip_type, "snippet")) {
+    if (!str_equal(snip_type,SNIPPET)) {
       printf("Range only supports snippets.\n");
       exit(EXIT_FAILURE);
     }
@@ -163,7 +151,6 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     if (arr_temp->type != TT_SNIPPET) {
       printf("Range only supports snippets.\n");
       exit(EXIT_FAILURE);
->>>>>>> 57411b2b835225be2ce5aa6c9a673f3ce2adafc4
     }
 
     char* ret = replace_inserts(arr_temp->content, NULL, config, variables,
