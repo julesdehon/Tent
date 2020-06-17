@@ -8,7 +8,6 @@ T_OBJS  = tent.o string_utils.o file_utils.o template.o map.o variable.o insert.
 .PHONY: all clean
 
 all: tent
-	mkdir -p ../bin
 
 clean:
 	rm -f *.o
