@@ -8,6 +8,14 @@
 #include <string.h>
 #include <ctype.h>
 
+#define CONTENT "content"
+#define RANGE "range"
+#define CONFIG "config"
+#define SNIPPET "snippet"
+#define ARGS "args"
+#define VARIABLE "variable"
+#define TEMPLATE "template"
+
 void parse_insert_value(char* insert, char** type, char** name) {
   *type = strtok(insert, ".");
   *name = strtok(NULL, ".");
@@ -84,11 +92,11 @@ char* get_insert(char* insert, char* content, VariableMap* config,
   VariableMap* args_n = NULL;
 
   // Content token
-  if (str_equal("content", tokens[0])) {
+  if (str_equal(CONTENT, tokens[0])) {
     return content;
   }
 
-  if (str_equal("range", tokens[0])) {
+  if (str_equal(RANGE, tokens[0])) {
     Variable* arr = NULL;
 
     if (token_count < 3) {
@@ -108,9 +116,9 @@ char* get_insert(char* insert, char* content, VariableMap* config,
       parse_args(tokens+3, arg_c, &args_p, &args_n);
     }
 
-    if (str_equal(arr_type, "config")) {
+    if (str_equal(arr_type, CONFIG)) {
       arr = *(map_get(config, arr_name));
-    } else if (str_equal(arr_type, "variable")) {
+    } else if (str_equal(arr_type, VARIABLE)) {
       arr = *(map_get(variables, arr_name));
     } else {
       printf("First argument to range command must be a variable.\n");
@@ -131,7 +139,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     char* snip_name;
     Template* arr_temp; 
     parse_insert_value(tokens[2], &snip_type, &snip_name);
-    if (str_equal(snip_type, "snippet")) {
+    if (str_equal(snip_type, SNIPPET)) {
       arr_temp = *(map_get(templates, snip_name));
       if (arr_temp == NULL) {
         printf("Snippet named %s doesn't exist.\n", snip_name);
@@ -170,7 +178,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     exit(EXIT_FAILURE);
   }
 
-  if (str_equal("args", insert_type)) {
+  if (str_equal(ARGS, insert_type)) {
     if (isdigit(insert_name[0])) {
       int index = atoi(insert_name);
       if (index < 0 || index >= args_length) {
@@ -201,7 +209,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
   }
 
   Variable* variable;
-  if(str_equal("config",insert_type)) {
+  if(str_equal(CONFIG,insert_type)) {
     Variable** var_ptr = map_get(config, insert_name);
     if (!var_ptr) {
       printf("Missing config: %s\n", insert_name);
@@ -214,7 +222,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     }
   }
 
-  if(str_equal("variable",insert_type)) {
+  if(str_equal(VARIABLE,insert_type)) {
     Variable** var_ptr = map_get(variables, insert_name);
     if (!var_ptr) {
       printf("Missing variable: %s\n", insert_name);
@@ -241,7 +249,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     if (token_count > 1) {
       parse_args(tokens + 1, arg_c, &args_p, &args_n);
     }
-    if(str_equal("template",insert_type)) {
+    if(str_equal(TEMPLATE, insert_type)) {
       if(template->type == TT_PAGE) {
         return replace_inserts(template->content, NULL, config, variables,
             args_n, args_p, 0, arg_c, templates);
@@ -251,7 +259,7 @@ char* get_insert(char* insert, char* content, VariableMap* config,
       }
     }
 
-    if(str_equal("snippet",insert_type)) {
+    if(str_equal(SNIPPET, insert_type)) {
       if(template->type == TT_SNIPPET) {
         return replace_inserts(template->content, NULL, config, variables,
             args_n, args_p, 0, arg_c, templates);
