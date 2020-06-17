@@ -101,7 +101,10 @@ void build_site() {
 }
 
 void write_default_config(FILE* cf, char* site_name) {
-  fprintf(cf, "site-name: %s", site_name);
+  fprintf(cf, "site-title: %s\n", site_name);
+  char *current_dir = getcwd(NULL, 0);
+  fprintf(cf, "site-url: %s/%s/%s", current_dir, site_name, DIR_PUBLIC);
+  free(current_dir);
 }
 
 void create_new_project(char* site_name) {
