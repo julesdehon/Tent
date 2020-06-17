@@ -62,7 +62,7 @@ void load_variable_map(char *key_val_pairs, VariableMap *var_map) {
 	  break;
 	}
 	temp_array[counter] = malloc((strlen(current) + 1) * sizeof(char));
-	strcpy(temp_array[counter], current);
+	strcpy(temp_array[counter], trim_whitespace(current));
 	counter++;
 	current = strtok(NULL, ",");
       }
@@ -101,7 +101,7 @@ void free_variable_map(VariableMap *var_map) {
 // If any of the required keys - listed below - are
 // missing, throws an error
 const int num_required_keys = 2;
-const char* required_keys[2] = {"site_title", "author"};
+const char* required_keys[2] = {"site-title", "site-url"};
 void load_config(char *file_path, VariableMap *config_map) {
   FILE *f = fopen(file_path, "r");
   if (!f) {

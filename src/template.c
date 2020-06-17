@@ -9,7 +9,6 @@
 #include <dirent.h>
 #include <unistd.h>
 
-#define PATH_LENGTH 128 //Shouldn't be longer than this
 #define TEMPLATES_PATH "/theme/templates"
 #define TEMPLATE_STR "template"
 #define INSERT_OPEN "{{"
@@ -107,10 +106,10 @@ TemplateMap* load_template_map() {
 
   DIR *dir,*subdir;
   struct dirent *ent,*sub_ent;
-  char path_name[PATH_LENGTH];
+  char path_name[PATH_MAX];
   FILE* fp;
 
-  char cwd[PATH_LENGTH];
+  char cwd[PATH_MAX];
   if (getcwd(cwd, sizeof(cwd)) == NULL) {
      perror("getcwd() error");
    }
