@@ -8,6 +8,8 @@ This will get a copy of the project up and running on your local machine.
 
 ## Prerequisites
 
+Tent depends on one library, cmark, which converts markdown-formatted text into html.
+
 ### Installing CMark
 
 To install in the standard location (do this if you have root access):
