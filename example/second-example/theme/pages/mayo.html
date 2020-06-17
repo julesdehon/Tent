@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+	<meta charset="utf-8">
+	<title>{{ variable.title }}</title>
+	<meta name="author" content="{{ config.author }}">
+	<meta name="description" content="{{ variable.description }}">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style> 
+body {background-color: crimson;}
+h1   {color: limegreen;}
+p    {color: white;}
+	</style>
+    </head>
+    <body>
+	{{content}}
+	{{ snippets.zero-ketchup }}
+	<p>{{ config.nav-title }}</p>
+	{{ snippets.navigation }}
+	{{ snippets.footer }}
+    </body>
+</html>
