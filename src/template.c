@@ -59,7 +59,6 @@ char* replace_inserts(char* template, char* content, VariableMap* config,
       final_text = new_text;
       free(orig);
       free(inside);
-      free(replacement);
     }
   }
 
