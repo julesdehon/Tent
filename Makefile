@@ -9,7 +9,7 @@ all:
 	cd src; make
 
 clean:
-	rm bin/tent
+	rm -f bin/tent
 	cd src; make clean
 
 install: all

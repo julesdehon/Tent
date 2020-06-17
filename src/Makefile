@@ -11,7 +11,7 @@ all: tent
 
 clean:
 	rm -f *.o
-	rm ../bin/tent
+	rm -f ../bin/tent
 
 tent: $(T_OBJS)
 	mkdir -p ../bin
