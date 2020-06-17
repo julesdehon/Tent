@@ -1,0 +1,6 @@
+site-name: Mustard
+site_title: Mustard is the best!
+author: Alexandru Moraru
+site-url: www.mustard-static.com
+home-description: A simple static site generator written in C
+
