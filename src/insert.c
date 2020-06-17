@@ -155,7 +155,6 @@ char* get_insert(char* insert, char* content, VariableMap* config,
 
     char* ret = replace_inserts(arr_temp->content, NULL, config, variables,
         args_n, args_p, 0, arg_c, templates);
-    printf("i = %d\nret = %s\n", 0, ret);
     for (int i = 1; i < arr->length; i++) { 
       char* replaced = replace_inserts(arr_temp->content, NULL, config, variables,
         args_n, args_p, i, arg_c, templates);
