@@ -6,4 +6,3 @@ home-description: A site that uses tent to prove how amazing mustard is!
 nav-names: [Mustard, Ketchup, Mayo]
 nav-paths: [home.html, ketchup.html, mayo.html]
 nav-title: Check out other sauces!
-
