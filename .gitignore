@@ -1,5 +1,11 @@
 bin/
-lib/
+
+# To ignore everything in lib apart from utils
+lib/*
+!lib/utils/
+
 include/
+
 share/
+
 example/public/
