@@ -1,7 +1,7 @@
-----
+---
 template: mayo
 title: Why is mayo good?
-----
+---
 ##IS MAYO GOOD?
 
 It's actually a trick question because mayonaise is actually god **awful** due to not only its pure greasy-ness but _disgusting taste_ too!

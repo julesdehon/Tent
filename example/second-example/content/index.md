@@ -1,11 +1,11 @@
------
+---
 template: home
 title: Mustard is the best sauce
 list: Ranking the types of mustard (1 being best)
 best: French's
 second: Dijon
 worst: Coleman's 
------
+---
 ##WHY IS MUSTARD THE BEST?##
 
 Contrarty many people's **opinions**, mustard is not only the tastiest sauce that exists... but also the most _versatile_! It can go well in a Salad's dressing or in the infamous New York style hotdog that is just soooo *dreamy* :)) 

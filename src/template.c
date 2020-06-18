@@ -112,6 +112,7 @@ TemplateMap* load_template_map() {
   char cwd[PATH_MAX];
   if (getcwd(cwd, sizeof(cwd)) == NULL) {
      perror("getcwd() error");
+     exit(EXIT_FAILURE);
    }
 
   strcpy(path_name, cwd);
@@ -119,7 +120,7 @@ TemplateMap* load_template_map() {
   strcat(path_name,"/");
 
   if(!(dir = opendir(path_name))) {
-    perror("Could not open directory!");
+    printf("Could not open directory %s, please make sure you have the right directory structure.\nAborting...");
     exit(EXIT_FAILURE);  
   }
 
@@ -129,8 +130,8 @@ TemplateMap* load_template_map() {
       continue;
     }
     if(!(subdir = opendir(path_name))) {
-      perror("Could not open directory!");
-      exit(EXIT_FAILURE);  
+      printf("Could not open directory %s, please make sure you have the right directory structure.\nAborting...\n");
+      exit(EXIT_FAILURE);
     }
     strcat(path_name, "/");
     while ((sub_ent = readdir(subdir)) != NULL) {
@@ -139,7 +140,7 @@ TemplateMap* load_template_map() {
       }
       strcat(path_name,sub_ent->d_name);
       if((fp = fopen(path_name,"r")) == NULL) {
-        perror("Could not open directory!");
+	printf("Could not open file %s.\nAborting...\n");
         exit(EXIT_FAILURE);  
       }
 

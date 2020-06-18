@@ -1,5 +1,6 @@
 site-name: Mustard
-site_title: Why Mustard?
+site-title: Why Mustard?
+site-url: ~/arm11_11/tent/example/second-example/
 author: Alexandru Moraru
 description: A site that uses tent to prove how amazing mustard is!
 nav-names: [Mustard, Ketchup, Mayo]

@@ -1,8 +1,8 @@
-----
+---
 template: ketchup
 title: Why is ketchup good?
 description: Using a static site generator to talk about ketchup
-----
+---
 ##WHAT MAKES KETCHUP GOOD?##
 
 Ketchup is always the staple food that goes well with **french fries** or _chips_ as the 'Brits' may call them. Although I personally prefer mustard, when I go to Shake Shack Ihave to get a small bucket of ketchup as my preferred dip, it's just too **good**!
