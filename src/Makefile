@@ -7,7 +7,7 @@ T_OBJS  = tent.o string_utils.o file_utils.o template.o map.o variable.o insert.
 
 .PHONY: all clean tests libs
 
-all: tent libs
+all: libs tent
 
 clean:
 	cd tests; make clean

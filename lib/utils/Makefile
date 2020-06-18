@@ -7,7 +7,7 @@ BUILD	= $(LIB)
 all:	$(BUILD)
 
 clean:
-	rm -f *.o utils.a
+	rm -f *.o libutils.a
 
 $(LIB): $(LIBOBJS)
 	ar rcs $(LIB) $(LIBOBJS)
