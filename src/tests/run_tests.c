@@ -3,10 +3,14 @@
 #include <test.h>
 #include <string.h>
 #include <stdio.h>
+#include <log.h>
 
 #include "../cmark_parser.h"
 #include "../variable.h"
 #include "../string_utils.h"
+#include "../file_utils.h"
+
+#define MAX_STRING 1024
 
 #define NUM_VARIABLES 5
 int test_markdown_parser(char *testname) {
@@ -71,7 +75,7 @@ int test_init_variable_map(char *testname) {
 #define NUM_ARRAYS 2
 #define KEY_VALS 
 int test_load_variable_map(char *testname) {
-  char key_vals[1024] = "foo:to the bar\n"\
+  char key_vals[MAX_STRING] = "foo:to the bar\n"\
                         "ping:   pong   \n"\
                         "hello: darkness my old friend   \n"\
                         "pop:corn\n"\
@@ -109,7 +113,7 @@ int test_load_variable_map(char *testname) {
     Variable *var = *var_ptr;
     if (var->type != VT_ARRAY)
       return 0;
-    char buf[100] = "";
+    char buf[MAX_STRING] = "";
     for (int j = 0; j < var->length; j++)
       strncat(buf, var->value.arr[j], 100 * sizeof(char));
     if (!str_equal(buf, arr_values[i]))
@@ -119,15 +123,165 @@ int test_load_variable_map(char *testname) {
   return 1;
 }
 
+#define NUM_REPLACEABLE 3
+int test_str_replace(char *testname) {
+  strcpy(testname, "string_utils.c - Test String Replace");
+  char *originals[NUM_REPLACEABLE] = {
+    "Java is my favourite programming language. I love to program in Java!",
+    "www.youtube.com",
+    "ThisMightBeAnEdgeCase"
+  };
+  char *rep[NUM_REPLACEABLE] = {
+    "Java",
+    "youtube",
+    "might"
+  };
+  char *with[NUM_REPLACEABLE] = {
+    "C... and python too,",
+    "facebook",
+    "IsDefinitely"
+  };
+  char *expected[NUM_REPLACEABLE] = {
+    "C... and python too, is my favourite programming language. I love to program in C... and python too,!",
+    "www.facebook.com",
+    "ThisMightBeAnEdgeCase"
+  };
+  for (int i = 0; i < NUM_REPLACEABLE; i++) {
+    char *replaced = str_replace(originals[i], rep[i], with[i]);
+    if (!replaced)
+      return 0;
+    if (!str_equal(replaced, expected[i]))
+      return 0;
+    free(replaced);
+  }
+  return 1;
+}
+
+#define NUM_TRIMMABLE 3
+int test_trim_whitespace(char *testname) {
+  strcpy(testname, "string_utils.c - Test Trim Whitespace");
+  char originals[NUM_TRIMMABLE][MAX_STRING] = {
+    "\t \nThis test has a tab and newline at the start      ",
+    " \r  and this one has some form-feed and carriage return   \v  \f",
+    "Finally this one is just normal!"
+  };
+  char *expected[NUM_TRIMMABLE] = {
+    "This test has a tab and newline at the start",
+    "and this one has some form-feed and carriage return",
+    "Finally this one is just normal!"
+  };
+  for (int i = 0; i < NUM_TRIMMABLE; i++) {
+    char *trimmed = trim_whitespace(originals[i]);
+    if (!trimmed)
+      return 0;
+    if (!str_equal(trimmed, expected[i])) {
+      log_debug("Got: '%s', expected: '%s'", trimmed, expected[i]);
+      return 0;
+    }
+  }
+  return 1;
+}
+
+#define NUM_APPENDABLE 2
+int test_str_append(char *testname) {
+  strcpy(testname, "string_utils.c - Test Str Append");
+  char *originals[NUM_APPENDABLE] = {
+    "I really like",
+    "This is one sentence. "
+  };
+  char *to_append[NUM_APPENDABLE] = {
+    " cheese!",
+    "and this is another sentence!"
+  };
+  char *expected[NUM_APPENDABLE] = {
+    "I really like cheese!",
+    "This is one sentence. and this is another sentence!"
+  };
+  for (int i = 0; i < NUM_APPENDABLE; i++) {
+    char *appended = str_append(originals[i], to_append[i]);
+    if (!appended)
+      return 0;
+    if (!str_equal(appended, expected[i])) {
+      log_debug("Got: '%s', expected: '%s'", appended, expected[i]);
+      return 0;
+    }
+  }
+  return 1;  
+}
+
+#define EG_MD_FILE_TEXT "---\n"\
+"foo:\tbar\n"\
+"ping:pong\n"\
+"hello:  world\n"\
+"pop: corn\n"\
+"percy:pig\n"\
+"---\n"\
+"# This is some example text\n"\
+"\n"\
+"I am **trying** to see if the _parse\\_markdown_ functions are working!\n"
+int test_read_file_into_buffer(char *testname) {
+  strcpy(testname, "file_utils.c - Test Read File Into Buffer");
+  FILE *f = fopen("eg_markdown_file.md", "r");
+  if (!f)
+    return 0;
+  long filelen;
+  char *buffer = read_file_into_buffer(f, &filelen);
+  if (!str_equal(EG_MD_FILE_TEXT, buffer)) {
+    log_debug("Got: '%s', expected: '%s'", buffer, EG_MD_FILE_TEXT);
+    return 0;
+  }
+  return 1;
+}
+
+#define NUM_EG_FILENAMES 5
+int test_file_name_processing(char *testname) {
+  strcpy(testname, "file_utils.c - Test Filename Processing Functions");
+  char *eg_filenames[NUM_EG_FILENAMES] = {
+    "tent.c",
+    "homepage.md",
+    "filename with spaces.txt",
+    "filename.with.multiple.dots",
+    "no-filename"
+  };
+  char *eg_names[NUM_EG_FILENAMES] = {
+    "tent",
+    "homepage",
+    "filename with spaces",
+    "filename.with.multiple",
+    "no-filename"
+  };
+  char *eg_extensions[NUM_EG_FILENAMES] = {
+    "c",
+    "md",
+    "txt",
+    "dots",
+    ""
+  };
+  for (int i = 0; i < NUM_EG_FILENAMES; i++) {
+    char *name = file_name_without_extension_from_string(eg_filenames[i]);
+    char *extension = file_extension_from_string(eg_filenames[i]);
+    if (!str_equal(name, eg_names[i]))
+      return 0;
+    if (!str_equal(extension, eg_extensions[i]))
+      return 0;
+  }
+  return 1;
+}
+
 int main(void) {
   int (*tests[])(char*) = {
     test_markdown_parser,
     test_determine_vartype,
     test_init_variable_map,
-    test_load_variable_map
+    test_load_variable_map,
+    test_str_replace,
+    test_trim_whitespace,
+    test_str_append,
+    test_read_file_into_buffer,
+    test_file_name_processing
   };
 
-  run_test_suite(tests, 4, __FILE__);
+  run_test_suite(tests, 9, __FILE__);
 
   return 0;
 }
