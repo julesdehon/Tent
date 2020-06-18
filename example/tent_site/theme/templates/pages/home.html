@@ -1,0 +1,26 @@
+<!-- Requires: -->
+<!-- header-img-path -->
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>{{ config.site-title }}</title> 
+    <meta name="author" content="{{ config.author }}">
+    <meta name="description" content="{{ config.home-description }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ config.site-url }}/css/style.css" rel="stylesheet">
+  </head>
+
+  <body>
+    {{ snippet.navigation }}
+
+    {{ snippet.header }}
+    
+    <div id="content">
+      {{ content }}
+  	</div>
+
+  </body>
+
+</html>

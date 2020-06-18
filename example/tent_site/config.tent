@@ -1,0 +1,6 @@
+site-title: first_site
+site-url: ~/arm11_11/tent/example/tent_site/public
+author: Jules Dehon
+home-description: My very first tent-created website!
+nav-names: [About, First Post]
+nav-paths: [about.html, blog-post-1.html]

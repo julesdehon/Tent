@@ -155,7 +155,6 @@ char* get_insert(char* insert, char* content, VariableMap* config,
 
     char* ret = replace_inserts(arr_temp->content, NULL, config, variables,
         args_n, args_p, 0, arg_c, templates);
-    printf("i = %d\nret = %s\n", 0, ret);
     for (int i = 1; i < arr->length; i++) { 
       char* replaced = replace_inserts(arr_temp->content, NULL, config, variables,
         args_n, args_p, i, arg_c, templates);
@@ -203,6 +202,10 @@ char* get_insert(char* insert, char* content, VariableMap* config,
         exit(EXIT_FAILURE);
       }
       if (var->type == VT_ARRAY) {
+	if (var_arg_index >= var->length) {
+	  printf("All array variables used in a snippet must have the same length.\n");
+	  exit(EXIT_FAILURE);
+	}
         return var->value.arr[var_arg_index];
       } else {
         return var->value.str;
@@ -218,6 +221,10 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     } else {
       variable = *var_ptr;
       if(variable->type == VT_ARRAY) {
+	if (var_arg_index >= variable->length) {
+	  printf("All array variables used in a snippet must have the same length.\n");
+	  exit(EXIT_FAILURE);
+	}
         return variable->value.arr[var_arg_index];
       }
       return variable->value.str; 
@@ -231,6 +238,10 @@ char* get_insert(char* insert, char* content, VariableMap* config,
     } else {
       variable = *var_ptr;
       if(variable->type == VT_ARRAY) {
+	if (var_arg_index >= variable->length) {
+	  printf("All array variables used in a snippet must have the same length.\n");
+	  exit(EXIT_FAILURE);
+	}
         return variable->value.arr[var_arg_index];
       }
       return variable->value.str; 

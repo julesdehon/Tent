@@ -1,0 +1,29 @@
+<!-- Requires: -->
+<!-- title, date -->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>{{ config.site-title }} | {{ variable.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="{{ config.site-url }}/css/style.css" rel="stylesheet">
+    <link href="{{ config.site-url }}/css/blog-post.css" rel="stylesheet">
+  </head>
+
+  <body>
+    {{ snippet.navigation }}
+
+    <div id="post-header">
+      <h1 id="post-title">{{ variable.title }}</h1> 
+      <p class="date">{{ variable.date }}</p>
+    </div>
+
+    <div id="content">
+      {{ content }}
+    </div>
+
+    {{ snippet.footer }}
+  </body>
+
+</html>

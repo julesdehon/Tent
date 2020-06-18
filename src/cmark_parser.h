@@ -1,6 +1,8 @@
 #ifndef CMARK_PARSER_H
 #define CMARK_PARSER_H
 
+#include "variable.h"
+
 #ifdef OUR_MARKDOWN_PARSER
 #define convert_md_to_html(text, length) (md_to_html(text, length))
 #else
