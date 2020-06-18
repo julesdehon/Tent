@@ -120,7 +120,7 @@ TemplateMap* load_template_map() {
   strcat(path_name,"/");
 
   if(!(dir = opendir(path_name))) {
-    printf("Could not open directory %s, please make sure you have the right directory structure.\nAborting...");
+    printf("Could not open directory %s, please make sure you have the right directory structure.\nAborting...", path_name);
     exit(EXIT_FAILURE);  
   }
 
@@ -130,7 +130,7 @@ TemplateMap* load_template_map() {
       continue;
     }
     if(!(subdir = opendir(path_name))) {
-      printf("Could not open directory %s, please make sure you have the right directory structure.\nAborting...\n");
+      printf("Could not open directory %s, please make sure you have the right directory structure.\nAborting...\n", path_name);
       exit(EXIT_FAILURE);
     }
     strcat(path_name, "/");
@@ -140,7 +140,7 @@ TemplateMap* load_template_map() {
       }
       strcat(path_name,sub_ent->d_name);
       if((fp = fopen(path_name,"r")) == NULL) {
-	printf("Could not open file %s.\nAborting...\n");
+	printf("Could not open file %s.\nAborting...\n", path_name);
         exit(EXIT_FAILURE);  
       }
 
