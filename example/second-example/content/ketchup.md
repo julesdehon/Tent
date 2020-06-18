@@ -1,9 +1,7 @@
 ---
 template: ketchup
-title: Why is ketchup good?
-description: Using a static site generator to talk about ketchup
 ketchup-img-path: img/zero-ketchup.jpg
-ketchup-img-alt: zero sugar added ketchup by Heinz&copy
+ketchup-img-alt: Zero sugar added ketchup bottle by Heinz&copy
 ---
 ##WHAT MAKES KETCHUP GOOD?##
 

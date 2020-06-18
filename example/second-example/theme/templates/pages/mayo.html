@@ -3,9 +3,9 @@
 
     <head>
 	<meta charset="utf-8">
-	<title>{{ variable.title }}</title>
+	<title>{{ config.site-title }}</title>
 	<meta name="author" content="{{ config.author }}">
-	<meta name="description" content="{{ variable.description }}">
+	<meta name="description" content="{{ config.home-description }}">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<style> 
 body {background-color: white;}
@@ -15,9 +15,9 @@ p    {color: navy;}
     </head>
     <body>
 	{{ content }}
-	{{ snippet.youtube url="https://www.youtube.com/watch?v=5-jKLfZuwvQ" width="200" height="100" }}
+	{{ snippet.youtube height="100" width="200 url="https://www.youtube.com/watch?v=5-jKLfZuwvQ" }}
 	<p>{{ config.nav-title }}</p>
-	{{ snippets.navigation }}
-	{{ snippets.footer }}
+        {{ snippet.navigation }}
+        {{ snippet.footer }}
     </body>
 </html>

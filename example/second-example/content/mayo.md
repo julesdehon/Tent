@@ -1,7 +1,5 @@
 ---
 template: mayo
-title: Why is mayo good?
-description: Using a static site generator (tent) to describe how 'good' mayo is
 ---
 ##IS MAYO GOOD?
 
