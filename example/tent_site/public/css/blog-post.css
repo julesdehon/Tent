@@ -1,0 +1,11 @@
+#post-header {
+	text-align: center;
+	padding:100px 0;
+	margin: 0 auto;
+}
+#post-title {
+	font-size: 3em;
+}
+#content {
+	padding-top: 0;
+}

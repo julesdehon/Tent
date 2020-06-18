@@ -33,6 +33,8 @@ Template* load_template(FILE* file, TemplateType type, char *file_name);
 
 void destroy_template(Template* t);
 
+void destroy_template_map(TemplateMap *t_map);
+
 void fill_template(char* content, VariableMap* config, VariableMap* variables,
     TemplateMap* templates, FILE* out);
 

@@ -25,6 +25,17 @@ void destroy_template(Template* t) {
   free(t);
 }
 
+void destroy_template_map(TemplateMap *t_map) {
+  map_iter_t iter = map_iter(t_map);
+  const char *key;
+  while ((key = map_next(t_map, &iter))) {
+    Template *template = *map_get(t_map, key);
+    destroy_template(template);
+  }
+  map_deinit(t_map);
+  free(t_map);
+}
+
 char* replace_inserts(char* template, char* content, VariableMap* config,
     VariableMap* variables, VariableMap* args_named, Variable** args_pos,
     int var_arg_index, int args_length, TemplateMap* templates) {

@@ -260,10 +260,15 @@ int test_file_name_processing(char *testname) {
   for (int i = 0; i < NUM_EG_FILENAMES; i++) {
     char *name = file_name_without_extension_from_string(eg_filenames[i]);
     char *extension = file_extension_from_string(eg_filenames[i]);
-    if (!str_equal(name, eg_names[i]))
+    if (!str_equal(name, eg_names[i])) {
+      free(name);
       return 0;
-    if (!str_equal(extension, eg_extensions[i]))
+    }
+    if (!str_equal(extension, eg_extensions[i])) {
+      free(name);
       return 0;
+    }
+    free(name);
   }
   return 1;
 }
