@@ -9,14 +9,18 @@
     <meta name="author" content="Jules Dehon">
     <meta name="description" content="My very first tent-created website!">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="~/arm11_11/tent/example/tent_site/public/css/style.css" rel="stylesheet">
+    <link href="/Users/julesdehon/Library/Mobile Documents/com~apple~CloudDocs/Web Design/tent_examples/first_site/public/css/style.css" rel="stylesheet">
+    <script src="/Users/julesdehon/Library/Mobile Documents/com~apple~CloudDocs/Web Design/tent_examples/first_site/public/js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="/Users/julesdehon/Library/Mobile Documents/com~apple~CloudDocs/Web Design/tent_examples/first_site/public/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   </head>
 
   <body>
     <nav>
-	<a id="site-title" href="~/arm11_11/tent/example/tent_site/public">Home</a>
+	<a id="site-title" href="/Users/julesdehon/Library/Mobile Documents/com~apple~CloudDocs/Web Design/tent_examples/first_site/public">Home</a>
     <a href="about.html">About</a>
-<a href="blog-post-1.html">First Post</a>
+<a href="https://gitlab.doc.ic.ac.uk/lab1920_summer/arm11_11">Our GitLab</a>
+<a href="https://www.imperial.ac.uk/">Imperial Website</a>
 
 </nav>
 
@@ -28,8 +32,152 @@
 </div>
     
     <div id="content">
-      <h1>Tent: Our C Project</h1>
-<p>This website has been generated completely by our program. It has been written using a combination</p>
+      <h1>Tent</h1>
+<p>A simple static site generator. Built as part of the extension section of Imperial Year 1 C Project.</p>
+<h1>Getting Started</h1>
+<p>This will get a copy of the project up and running on your local machine.</p>
+<h2>Prerequisites</h2>
+<p>Tent depends on one library, cmark, which converts markdown-formatted text into html.</p>
+<h3>Installing CMark</h3>
+<p>To install in the standard location (do this if you have root access):</p>
+<ol>
+<li><code>cd</code> somewhere nice, maybe your home directory?</li>
+<li><code>git clone https://github.com/commonmark/cmark.git</code></li>
+<li><code>cd</code> into the repo</li>
+<li>type <code>make</code></li>
+<li>type <code>make install</code></li>
+</ol>
+<p>You have now installed the library! If you'd like to install cmark somewhere else, for exmaple if you don't have root access, steps 1-3 are the same:</p>
+<ol>
+<li><code>cd</code> somewhere nice, maybe just your home directory, or a <code>c/</code> directory if you have one</li>
+<li><code>git clone https://github.com/commonmark/cmark.git</code></li>
+<li><code>cd</code> into the repo</li>
+<li>type <code>make INSTALL_PREFIX=path/to/tent</code></li>
+<li>type <code>make install</code></li>
+</ol>
+<p>You will need to set the LIBRARY_PATH environment variables so the linker will be able to find the libraries:</p>
+<ol start="7">
+<li>type <code>export LD_LIBRARY_PATH=path/to/tent/lib:$LD_LIBRARY_PATH</code></li>
+<li>type <code>export LIBRARY_PATH=path/to/tent/lib:$LIBRARY_PATH</code></li>
+</ol>
+<h2>Installing Tent</h2>
+<ol>
+<li>Clone this repository to your computer</li>
+<li>type <code>cd arm11_11/tent</code></li>
+<li>type <code>make</code></li>
+</ol>
+<p>The main program can now be found in <code>arm11_11/tent/bin/tent</code>
+To install it to <code>/usr/local/bin/</code></p>
+<ol start="4">
+<li>type <code>make install</code></li>
+</ol>
+<p>You have now installed tent and it is ready for use!</p>
+<h1>Usage</h1>
+<p>There are two tent commands:</p>
+<ul>
+<li><code>tent create &lt;site name&gt;</code></li>
+<li><code>tent build</code></li>
+</ul>
+<h3>Command: tent create &lt;site_name&gt;</h3>
+<p>This will create a new directory <code>site_name/</code> with the following directory structure:</p>
+<pre><code>site_name
+│   config.tent 
+│
+└───content
+│ 
+└───theme
+    │
+    └───templates
+	    │
+	    └───pages
+	    │
+	    └───snippets
+</code></pre>
+<p>you can find a default theme directory in <code>tent/examples/default</code>.</p>
+<h3>Writing your site</h3>
+<p>When creating a tent site, you will mainly be adding files to the <code>content/</code> directory. When you <code>tent build</code> your site, it will be copied to a directory <code>public/</code>, which will contain all the files from your <code>content/</code> directory, with all the necessary replacements made.</p>
+<p>In your <code>content/</code> directory, you can add files of any type you want. These will all be copied into your <code>public/</code> directory when you build the site. Tent will only pay attention to markdown files (<code>.md</code>) in your <code>content/</code> directory.</p>
+<p>A markdown file in your <code>content/</code> directory, for example, on your website about condiments, <code>content/mustard.md</code> should look something like this:</p>
+<pre><code>---
+template: blog-post
+title: What makes mustard so good?
+date: 17/06/2020
+recent-post-links: [ketchup.html, mayo.html, spices/cardamon.html]
+recent-post-names: [Ketchup, Mayo, Cardamon]
+---
+Hi everyone! This is a subject very close to my heart!
+
+Gordon Ramsay once said about mustard:
+&gt; It is probably one of the best condiments in the world
+
+Here's a cool video demonstrating my thoughts:
+[[ snippet.youtube-video url=&quot;https://www.youtube.com/watch?v=8ktONdU_wXU&quot; width=&quot;560&quot; height=&quot;315&quot; ]]
+...
+</code></pre>
+<p>Here the top part of the markdown file (between the two  <code>---</code>), forms the metadata associated with this page. <code>template: blog-post</code> tells tent that this is a blog post, and so that it should go to <code>theme/templates/blog-post.html</code> to find the correct template. The rest of the <code>key: value</code> pairs in the metadata section are variables, which will subsequently be used by the templates. Variables can have string type, for example <code>title</code> in the above example, or array type, for example <code>recent-post-links</code> in the above example.  Different templates will require different variables be set.</p>
+<p>Suppose <code>config.tent</code> looked something like this:</p>
+<pre><code>site-title: A site about condiments!
+site-url: www.best-condiments.com
+</code></pre>
+<p>Here, <code>theme/templates/blog-post.html</code> will look something like this:</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+	&lt;head&gt;
+		&lt;meta charset=&quot;utf-8&quot;&gt;
+		&lt;title&gt;[[ config.site-title ]] | [[ variable.title ]]&lt;/title&gt;
+		&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+		&lt;link href=&quot;[[ config.site-url ]]/css/blog-post.css&quot; rel=&quot;stylesheet&quot;&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+		[[ snippet.nav ]]
+		[[ range variable.recent-post-links snippet.recent-posts ]]
+		&lt;h1&gt;[[ variable.title ]]&lt;/h1&gt;
+		&lt;p class=&quot;date&quot;&gt;[[ variable.date ]]&lt;/p&gt;
+		[[ content ]]
+		[[ snippet.footer ]]
+	&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><code>theme/snippets/youtube-video.html</code> will look something like this:</p>
+<pre><code class="language-html">&lt;iframe width=&quot;[[ args.width ]]&quot; height=&quot;[[ args.height ]]&quot; src=&quot;[[ args.url ]]&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen&gt;&lt;/iframe&gt;
+</code></pre>
+<p>and <code>theme/snippets/recent-posts.html</code> will look something like this:</p>
+<pre><code class="language-html">&lt;a class=&quot;recent-post&quot; href=&quot;[[ variable.recent-post-links ]]&quot;&gt;[[ variable.recent-post-names ]]&lt;/a&gt;
+</code></pre>
+<p><strong>Inserts:</strong></p>
+<p>Tent uses 'inserts' to populate templates (found in <code>site_name/theme/templates/</code>) and snippets (found in <code>site_name/theme/snippets</code>).
+Inserts look like this: <code>[[ insert_type.insert_name ]]</code></p>
+<p>Suppose the program was in the process of creating <code>mustard.html</code> (from <code>mustard.md</code>). This example will be used in the following.</p>
+<p>There are a couple of insert types.</p>
+<p><code>[[ variable.&lt;var-name&gt; ]]</code>  inserts:
+These will be replaced with whatever value is associated with &lt;var-name&gt; in the metadata section of whatever markdown file is using the template or snippet. In our example, <code>[[ variable.title ]]</code> will be replaced with <code>What makes mustard so good?</code> (due to the line in <code>mustard.md</code> which says <code>title: What makes mustard so good?</code>)</p>
+<p><code>[[ config.&lt;var-name&gt; ]]</code> inserts:
+These will be replaced with whatever value is associated with &lt;var-name&gt; in the <code>config.tent</code> file. So <code>[[ config.site-title ]]</code> will be replaced with <code>A site about condiments!</code></p>
+<p><code>[[ content ]]</code> inserts:
+Our program uses the library CMark to convert everything after the second <code>---</code> in your <code>.md</code> file from markdown to html, and then replaces <code>[[ content ]]</code> with whatever comes from that conversion.</p>
+<p><code>[[ range &lt;list-variable&gt; snippet.&lt;snippet-name&gt; ]]</code> inserts:
+Our program will iterate through each value in <code>&lt;list-variable&gt;</code> (could be a config, or a metadata variable), and for each one, issue all the necessary replacements into <code>&lt;snippet-to-insert-into&gt;</code>. The insert will then be replaced by the concatenation of all these replaced snippets
+In the above example, <code>[[ range variable.recent-post-links snippet.recent-posts ]]</code> will be replaced with:</p>
+<pre><code class="language-html">&lt;a class=&quot;recent-post&quot; href=&quot;ketchup.html&quot;&gt;Ketchup&lt;/a&gt;
+&lt;a class=&quot;recent-post&quot; href=&quot;mayo.html&quot;&gt;Mayo&lt;/a&gt;
+&lt;a class=&quot;recent-post&quot; href=&quot;spices/cardamon.html&quot;&gt;Cardamon&lt;/a&gt;
+</code></pre>
+<p><strong>Arguments:</strong></p>
+<p>Any time you use an insert, you can supply it with arguments, in the form of immediate values (could be strings or arrays). These arguments can be either positional or named.</p>
+<p><em>Named</em>:
+In the above example, the insert <code>[[ snippet.youtube-video url=&quot;https://www.youtube.com/watch?v=8ktONdU_wXU&quot; width=&quot;560&quot; height=&quot;315&quot; ]]</code> makes use of named arguments. When issuing the replacements, in <code>youtube-video.html</code>,  <code>[[ args.height ]]</code> will be replaced with <code>560</code>, <code>[[ args.height ]]</code> will be replaced with <code>315</code> and <code>[[ args.url ]]</code> will be replaced with <code>https://www.youtube.com/watch?v=8ktONdU_wXU</code>.</p>
+<p><em>Positional:</em>
+These are very similar to named arguments, except that they are specified without the <code>name=</code> which precedes the value, and they are referenced using numbers. If we were to re-write the video snipped using positional arguments, their definitions would look something like this: <code>[[ snippet.youtube-video https://www.youtube.com/watch?v=8ktONdU_wXU 560 315 ]]</code>, and they would be referenced like this:</p>
+<pre><code class="language-html">&lt;iframe width=&quot;[[ args.1 ]]&quot; height=&quot;[[ args.2 ]]&quot; src=&quot; args.0 ]]&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen&gt;&lt;/iframe&gt;
+</code></pre>
+<h3>Command: tent build</h3>
+<p>Once you are happy with the state of your website directory, and you would like to build the website, and for tent to work its magic, <code>cd path/to/&lt;site_name&gt;</code> into the directory tent created for you, and type <code>tent build</code></p>
+<p>This will create a new folder, <code>tent/build/</code>, and will populate it with everything that was in your <code>content/</code> directory, having issued all the replacements in the <code>.md</code> files.</p>
+<h1>Contributors</h1>
+<p><strong>Alex Moraru</strong>
+<strong>Casey Williams</strong>
+<strong>Mihnea-Teodor Savin</strong>
+<strong>Jules Dehon</strong></p>
 
   	</div>
 

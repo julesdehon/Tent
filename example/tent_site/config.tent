@@ -1,6 +1,6 @@
 site-title: first_site
-site-url: ~/arm11_11/tent/example/tent_site/public
+site-url: /Users/julesdehon/Library/Mobile Documents/com~apple~CloudDocs/Web Design/tent_examples/first_site/public
 author: Jules Dehon
 home-description: My very first tent-created website!
-nav-names: [About, First Post]
-nav-paths: [about.html, blog-post-1.html]
+nav-names: [About, Our GitLab, Imperial Website]
+nav-paths: [about.html, https://gitlab.doc.ic.ac.uk/lab1920_summer/arm11_11, https://www.imperial.ac.uk/]
