@@ -9,3 +9,4 @@ include/
 share/
 example/first-example/public
 example/second-example/public
+example/tent_site/public
