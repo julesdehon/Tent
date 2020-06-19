@@ -74,9 +74,13 @@ char* file_name_without_extension(FILE* file) {
 
 char *file_name_without_extension_from_string(char *file_name) {
   char *extension = strrchr(file_name, '.');
-  if (!extension)
-    return file_name;
-  char *ret = calloc(extension - file_name, sizeof(char));
+  char *ret;
+  if (!extension) {
+    ret = calloc(strlen(file_name) + 1, sizeof(char));
+    strcpy(ret, file_name);
+    return ret;
+  }
+  ret = calloc(extension - file_name, sizeof(char));
   memcpy(ret, file_name, extension - file_name);
   return ret;
 }
