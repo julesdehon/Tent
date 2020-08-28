@@ -7,6 +7,9 @@ lib/*
 include/
 
 share/
-example/first-example/public
-example/second-example/public
+
+# Ignore public folder in examples
 example/tent_site/public
+
+# Ignore vim config file
+.vimrc
